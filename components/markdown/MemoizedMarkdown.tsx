@@ -1,9 +1,10 @@
 'use client';
-import React, { useState } from 'react';
+import React, { memo, useMemo, useRef, useState } from 'react';
 import ReactMarkdown, { type Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
+import { marked } from 'marked';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import {
   oneDark,
@@ -14,22 +15,10 @@ import type { ExtraProps } from 'react-markdown';
 
 type CodeComponentProps = ComponentProps<'code'> & ExtraProps;
 
-function MarkdownRenderer({ content }: { content: string }) {
-  return (
-    <div className="prose prose-base dark:prose-invert break-words max-w-none prose-code:before:content-none prose-code:after:content-none">
-      <ReactMarkdown
-        remarkPlugins={[
-          remarkGfm,
-          [remarkMath, { singleDollarTextMath: true }],
-        ]}
-        rehypePlugins={[rehypeKatex]}
-        components={components}
-      >
-        {content}
-      </ReactMarkdown>
-    </div>
-  );
-}
+const components: Partial<Components> = {
+  code: CodeBlock,
+  pre: ({ children }) => <>{children}</>,
+};
 
 function CodeBlock({
   children,
@@ -43,7 +32,7 @@ function CodeBlock({
     const lang = match[1];
     return (
       <div>
-        <Codebar lang={lang} codeString={extractTextContent(children)} />
+        <Codebar lang={lang} codeString={String(children)} />
         <SyntaxHighlighter
           style={oneDark}
           language={lang}
@@ -60,7 +49,7 @@ function CodeBlock({
             },
           }}
         >
-          {extractTextContent(children)}
+          {String(children)}
         </SyntaxHighlighter>
       </div>
     );
@@ -76,13 +65,7 @@ function CodeBlock({
   );
 }
 
-const Codebar = ({
-  lang,
-  codeString,
-}: {
-  lang: string;
-  codeString: string;
-}) => {
+function Codebar({ lang, codeString }: { lang: string; codeString: string }) {
   const [copied, setCopied] = useState(false);
 
   const copyToClipboard = async () => {
@@ -100,26 +83,57 @@ const Codebar = ({
   return (
     <div className="flex justify-between items-center px-4 py-2 bg-secondary text-foreground rounded-t-md">
       <span className="text-sm font-mono">{lang}</span>
-      <button className="text-sm">Copy</button>
+      <button onClick={copyToClipboard} className="text-sm">
+        {copied ? 'Copied!' : 'Copy'}
+      </button>
     </div>
   );
-};
+}
 
-const components: Partial<Components> = {
-  code: CodeBlock,
-  pre: ({ children }) => <>{children}</>,
-};
+function parseMarkdownIntoBlocks(markdown: string): string[] {
+  try {
+    const tokens = marked.lexer(markdown);
+    return tokens.map((token) => token.raw);
+  } catch (error) {
+    console.error('Error parsing markdown:', error);
+    return [markdown];
+  }
+}
 
-const extractTextContent = (node: React.ReactNode): string => {
-  if (typeof node === 'string') return node;
-  if (typeof node === 'number') return String(node);
-  if (Array.isArray(node)) return node.map(extractTextContent).join('');
-  if (React.isValidElement(node)) {
-    return extractTextContent(
-      (node.props as { children?: React.ReactNode }).children
+function PureMarkdownRendererBlock({ content }: { content: string }) {
+  return (
+    <ReactMarkdown
+      remarkPlugins={[remarkGfm, [remarkMath, { singleDollarTextMath: true }]]}
+      rehypePlugins={[rehypeKatex]}
+      components={components}
+    >
+      {content}
+    </ReactMarkdown>
+  );
+}
+
+const MarkdownRendererBlock = memo(
+  PureMarkdownRendererBlock,
+  (prevProps, nextProps) => {
+    return prevProps.content === nextProps.content;
+  }
+);
+
+MarkdownRendererBlock.displayName = 'MarkdownRendererBlock';
+
+const MemoizedMarkdown = memo(
+  ({ content, id }: { content: string; id: string }) => {
+    const blocks = useMemo(() => parseMarkdownIntoBlocks(content), [content]);
+    return (
+      <div className="prose prose-base dark:prose-invert break-words max-w-3xl prose-code:before:content-none prose-code:after:content-none">
+        {blocks.map((block, index) => (
+          <MarkdownRendererBlock content={block} key={`${id}-block-${index}`} />
+        ))}
+      </div>
     );
   }
-  return '';
-};
+);
 
-export default MarkdownRenderer;
+MemoizedMarkdown.displayName = 'MemoizedMarkdown';
+
+export default MemoizedMarkdown;
