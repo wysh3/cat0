@@ -1,83 +1,73 @@
 import { memo, useState } from 'react';
 import MarkdownRenderer from '@/components/markdown/MemoizedMarkdown';
 import { cn } from '@/lib/utils';
-import { UIMessage } from 'ai';
+import { ChatRequestOptions, Message, UIMessage } from 'ai';
 import equal from 'fast-deep-equal';
-import { Check, Copy } from 'lucide-react';
-import { Button } from './ui/button';
-import { Status } from '@/lib/types';
+import MessageControls from './MessageControls';
 
 function PureMessage({
   message,
-  status,
+  setMessages,
+  isLoading,
+  reload,
 }: {
   message: UIMessage;
-  status: Status;
+  setMessages: (messages: Message[]) => void;
+  reload: (chatRequestOptions?: ChatRequestOptions) => void;
+  isLoading: boolean;
 }) {
-  const [copied, setCopied] = useState(false);
+  return (
+    <div
+      className={cn(
+        'flex w-full',
+        message.role === 'user' ? 'justify-end' : 'justify-start'
+      )}
+    >
+      {message.parts.map((part, index) => {
+        const { type } = part;
+        const key = `message-${message.id}-part-${index}`;
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(message.content);
-    setCopied(true);
-    setTimeout(() => {
-      setCopied(false);
-    }, 2000);
-  };
+        if (type === 'text') {
+          return message.role === 'user' ? (
+            <div
+              key={key}
+              className="relative group px-4 py-3 rounded-xl bg-secondary/30 border border-secondary/30 max-w-[80%]"
+            >
+              <p>{part.text}</p>
 
-  return message.parts.map((part, index) => {
-    console.log(part);
-    switch (part.type) {
-      case 'text':
-        return (
-          <div
-            key={`${message.id}-${index}`}
-            className={cn(
-              'flex w-full',
-              message.role === 'user' ? 'justify-end' : 'justify-start'
-            )}
-          >
-            {message.role === 'user' ? (
-              <div className="relative group px-4 py-3 rounded-xl bg-secondary/30 border border-secondary/30 max-w-[80%]">
-                {part.text}
-                <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-100 absolute mt-5 right-2">
-                  <Button variant="ghost" size="icon" onClick={handleCopy}>
-                    {copied ? (
-                      <Check className="w-4 h-4" />
-                    ) : (
-                      <Copy className="w-4 h-4" />
-                    )}
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              <div className="group flex flex-col gap-2 w-full">
-                <MarkdownRenderer content={part.text} id={message.id} />
-                <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-100 flex gap-2">
-                  {status === 'ready' && (
-                    <Button variant="ghost" size="icon" onClick={handleCopy}>
-                      {copied ? (
-                        <Check className="w-4 h-4" />
-                      ) : (
-                        <Copy className="w-4 h-4" />
-                      )}
-                    </Button>
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
-        );
-    }
-  });
+              <MessageControls content={part.text} role={message.role} />
+            </div>
+          ) : (
+            <div key={key} className="group flex flex-col gap-2 w-full">
+              <MarkdownRenderer content={part.text} id={message.id} />
+              {!isLoading && (
+                <MessageControls content={part.text} role={message.role} />
+              )}
+            </div>
+          );
+        }
+      })}
+    </div>
+  );
 }
 
-const Message = memo(PureMessage, (prevProps, nextProps) => {
+const PreviewMessage = memo(PureMessage, (prevProps, nextProps) => {
   if (prevProps.message.id !== nextProps.message.id) return false;
   if (!equal(prevProps.message.parts, nextProps.message.parts)) return false;
-  if (prevProps.status !== nextProps.status) return false;
+  if (prevProps.isLoading !== nextProps.isLoading) return false;
   return true;
 });
 
-Message.displayName = 'Message';
+PreviewMessage.displayName = 'PreviewMessage';
 
-export default Message;
+export default PreviewMessage;
+
+const something = (
+  message: UIMessage,
+  mode: 'view' | 'edit',
+  setMode: (mode: 'view' | 'edit') => void,
+  setMessages: (messages: Message[]) => void,
+  reload: (chatRequestOptions?: ChatRequestOptions) => void
+) => {
+  return;
+};

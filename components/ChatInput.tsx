@@ -41,7 +41,7 @@ function PureChatInput({
   };
 
   return (
-    <div className="fixed bottom-0 w-full max-w-3xl mb-8">
+    <div className="fixed bottom-0 w-full max-w-3xl mb-8 backdrop-blur-lg">
       <Input ref={inputRef} onKeyDown={onKeyDown} />
     </div>
   );

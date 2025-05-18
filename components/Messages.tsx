@@ -1,20 +1,30 @@
 import { Status } from '@/lib/types';
-import Message from './Message';
-import { UIMessage } from 'ai';
+import PreviewMessage from './Message';
+import { ChatRequestOptions, UIMessage, type Message } from 'ai';
 import equal from 'fast-deep-equal';
 import { memo } from 'react';
 
 function PureMessages({
   messages,
   status,
+  setMessages,
+  reload,
 }: {
   messages: UIMessage[];
+  setMessages: (messages: Message[]) => void;
   status: Status;
+  reload: (chatRequestOptions?: ChatRequestOptions) => void;
 }) {
   return (
     <section className="flex flex-col gap-12">
-      {messages.map((message) => (
-        <Message key={message.id} message={message} status={status} />
+      {messages.map((message, index) => (
+        <PreviewMessage
+          key={message.id}
+          message={message}
+          setMessages={setMessages}
+          isLoading={status === 'streaming' && messages.length - 1 === index}
+          reload={reload}
+        />
       ))}
     </section>
   );
