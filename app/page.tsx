@@ -4,6 +4,8 @@ import ChatInput from '@/components/ChatInput';
 import Messages from '@/components/Messages';
 import { useChat } from '@ai-sdk/react';
 
+export type Status = 'ready' | 'error' | 'submitted' | 'streaming';
+
 export default function Home() {
   const { messages, append, stop, status } = useChat({
     experimental_throttle: 50,
@@ -11,7 +13,7 @@ export default function Home() {
 
   return (
     <main className="flex flex-col w-full max-w-3xl py-24 mx-auto">
-      <Messages messages={messages} />
+      <Messages messages={messages} status={status} />
       <ChatInput append={append} stop={stop} status={status} />
     </main>
   );

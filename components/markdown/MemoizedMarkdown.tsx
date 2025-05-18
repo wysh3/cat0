@@ -125,7 +125,7 @@ const MemoizedMarkdown = memo(
   ({ content, id }: { content: string; id: string }) => {
     const blocks = useMemo(() => parseMarkdownIntoBlocks(content), [content]);
     return (
-      <div className="prose prose-base dark:prose-invert break-words max-w-3xl prose-code:before:content-none prose-code:after:content-none">
+      <div className="prose prose-base dark:prose-invert bread-words max-w-none w-full prose-code:before:content-none prose-code:after:content-none">
         {blocks.map((block, index) => (
           <MarkdownRendererBlock content={block} key={`${id}-block-${index}`} />
         ))}
