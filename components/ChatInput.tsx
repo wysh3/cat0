@@ -2,10 +2,18 @@ import { memo, useRef, useCallback } from 'react';
 import { Input } from './ui/input';
 import { Message } from 'ai';
 
-function PureChatInput({ append }: { append: (message: Message) => void }) {
+function PureChatInput({
+  append,
+  stop,
+  status,
+}: {
+  append: (message: Message) => void;
+  stop: () => void;
+  status: 'submitted' | 'streaming' | 'ready' | 'error';
+}) {
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const handleSubmit = useCallback(() => {
+  const handleSubmit = () => {
     const value = inputRef.current?.value;
 
     if (value && value.trim()) {
@@ -19,17 +27,18 @@ function PureChatInput({ append }: { append: (message: Message) => void }) {
         inputRef.current.value = '';
       }
     }
-  }, [append]);
+  };
 
-  const onKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
+  const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      if (status !== 'ready') {
+        return;
+      } else {
         handleSubmit();
       }
-    },
-    [handleSubmit]
-  );
+    }
+  };
 
   return (
     <div className="fixed bottom-0 w-full max-w-3xl mb-8">
@@ -39,7 +48,8 @@ function PureChatInput({ append }: { append: (message: Message) => void }) {
 }
 
 const ChatInput = memo(PureChatInput, (prevProps, nextProps) => {
-  return prevProps.append === nextProps.append;
+  if (prevProps.status !== nextProps.status) return false;
+  return true;
 });
 
 ChatInput.displayName = 'ChatInput';

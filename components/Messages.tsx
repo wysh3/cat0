@@ -5,7 +5,7 @@ import { memo } from 'react';
 
 function PureMessages({ messages }: { messages: UIMessage[] }) {
   return (
-    <section>
+    <section className="flex flex-col gap-10">
       {messages.map((message) => (
         <Message key={message.id} message={message} />
       ))}

@@ -10,9 +10,9 @@ export default function Home() {
   });
 
   return (
-    <main className="flex flex-col gap-10 w-full max-w-3xl py-24 mx-auto">
+    <main className="flex flex-col w-full max-w-3xl py-24 mx-auto">
       <Messages messages={messages} />
-      <ChatInput append={append} />
+      <ChatInput append={append} stop={stop} status={status} />
     </main>
   );
 }

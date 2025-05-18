@@ -13,12 +13,13 @@ function PureMessage({ message }: { message: UIMessage }) {
       )}
     >
       {message.parts.map((part, index) => {
+        console.log(part);
         switch (part.type) {
           case 'text':
             return (
               <div key={`${message.id}-${index}`}>
                 {message.role === 'user' ? (
-                  <p>{part.text}</p>
+                  <UserMessage content={part.text} />
                 ) : (
                   <MarkdownRenderer content={part.text} id={message.id} />
                 )}
@@ -27,6 +28,14 @@ function PureMessage({ message }: { message: UIMessage }) {
         }
       })}
     </div>
+  );
+}
+
+function UserMessage({ content }: { content: string }) {
+  return (
+    <p className="px-4 py-3 rounded-xl bg-secondary/30 border border-secondary/30">
+      {content}
+    </p>
   );
 }
 
