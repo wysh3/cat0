@@ -24,6 +24,7 @@ function PureMessage({
       )}
     >
       {message.parts.map((part, index) => {
+        console.log(part);
         const { type } = part;
         const key = `message-${message.id}-part-${index}`;
 

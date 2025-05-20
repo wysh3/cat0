@@ -169,3 +169,8 @@
     @apply bg-background text-foreground;
   }
 }
+
+.shiki {
+  @apply !bg-primary-foreground/20 !border-none;
+  font-size: 14.25px;
+}

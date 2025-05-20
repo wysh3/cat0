@@ -1,16 +1,12 @@
 'use client';
-import React, { memo, useMemo, useRef, useState } from 'react';
+import React, { memo, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import ReactMarkdown, { type Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import { marked } from 'marked';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import {
-  oneDark,
-  oneLight,
-} from 'react-syntax-highlighter/dist/esm/styles/prism';
-import type { ComponentProps } from 'react';
+import ShikiHighlighter from 'react-shiki';
+import type { ComponentProps, JSX } from 'react';
 import type { ExtraProps } from 'react-markdown';
 
 type CodeComponentProps = ComponentProps<'code'> & ExtraProps;
@@ -31,26 +27,20 @@ function CodeBlock({
   if (match) {
     const lang = match[1];
     return (
-      <div>
+      <div className="border-none">
         <Codebar lang={lang} codeString={String(children)} />
-        <SyntaxHighlighter
-          style={oneDark}
+        <ShikiHighlighter
           language={lang}
-          PreTag="pre"
-          customStyle={{
-            margin: '0px',
-            background: 'rgba(138, 121, 171, 0.1)',
+          theme={'tokyo-night'}
+          className="text-sm font-mono !border-none"
+          style={{
+            backgroundColor: 'rgba(138, 121, 171, 0.1)',
             borderRadius: '0',
           }}
-          codeTagProps={{
-            style: {
-              fontFamily: 'Geist Mono',
-              fontSize: '14px',
-            },
-          }}
+          showLanguage={false}
         >
           {String(children)}
-        </SyntaxHighlighter>
+        </ShikiHighlighter>
       </div>
     );
   }
@@ -115,7 +105,8 @@ function PureMarkdownRendererBlock({ content }: { content: string }) {
 const MarkdownRendererBlock = memo(
   PureMarkdownRendererBlock,
   (prevProps, nextProps) => {
-    return prevProps.content === nextProps.content;
+    if (prevProps.content !== nextProps.content) return false;
+    return true;
   }
 );
 
