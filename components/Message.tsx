@@ -1,4 +1,4 @@
-import { memo, useState } from 'react';
+import { memo } from 'react';
 import MarkdownRenderer from '@/components/markdown/MemoizedMarkdown';
 import { cn } from '@/lib/utils';
 import { ChatRequestOptions, Message, UIMessage } from 'ai';
@@ -53,6 +53,9 @@ function PureMessage({
 }
 
 const PreviewMessage = memo(PureMessage, (prevProps, nextProps) => {
+  if (!prevProps.message || !nextProps.message) {
+    return prevProps.message === nextProps.message;
+  }
   if (prevProps.message.id !== nextProps.message.id) return false;
   if (!equal(prevProps.message.parts, nextProps.message.parts)) return false;
   if (prevProps.isLoading !== nextProps.isLoading) return false;
@@ -62,13 +65,3 @@ const PreviewMessage = memo(PureMessage, (prevProps, nextProps) => {
 PreviewMessage.displayName = 'PreviewMessage';
 
 export default PreviewMessage;
-
-const something = (
-  message: UIMessage,
-  mode: 'view' | 'edit',
-  setMode: (mode: 'view' | 'edit') => void,
-  setMessages: (messages: Message[]) => void,
-  reload: (chatRequestOptions?: ChatRequestOptions) => void
-) => {
-  return;
-};

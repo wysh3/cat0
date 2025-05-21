@@ -1,4 +1,4 @@
-import { memo, useRef, useCallback } from 'react';
+import { memo, useRef } from 'react';
 import { Input } from './ui/input';
 import { Message } from 'ai';
 

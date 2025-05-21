@@ -1,5 +1,3 @@
-'use client';
-
 import ChatInput from '@/components/ChatInput';
 import Messages from '@/components/Messages';
 import { useChat } from '@ai-sdk/react';
