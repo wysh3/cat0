@@ -34,7 +34,7 @@ export async function POST(req: Request) {
   const model4 = openrouter('google/gemini-2.5-pro-preview');
 
   const result = streamText({
-    model: model2,
+    model: model3,
     messages,
     onError: ({ error }) => {
       console.error(error);
