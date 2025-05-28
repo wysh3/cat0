@@ -1,0 +1,52 @@
+import { UIMessage } from 'ai';
+import { db } from './db';
+
+export const createThread = async (id: string) => {
+  return await db.threads.add({
+    id,
+    title: 'New Chat',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  });
+};
+
+export const updateThread = async (id: string, title: string) => {
+  return await db.threads.update(id, { title });
+};
+
+export const getThreads = async () => {
+  return await db.threads.orderBy('updatedAt').reverse().toArray();
+};
+
+export const deleteThread = async (id: string) => {
+  const thread = await db.threads.get(id);
+  if (!thread) {
+    throw new Error(`Thread with id ${id} not found`);
+  }
+
+  return await db.transaction('rw', [db.threads, db.messages], async () => {
+    await db.messages.where('threadId').equals(id).delete();
+    return await db.threads.delete(id);
+  });
+};
+
+export const deleteAllThreads = async () => {
+  await db.threads.clear();
+  await db.messages.clear();
+  return;
+};
+
+export const getMessages = async (threadId?: string) => {
+  if (!threadId) return [];
+  return await db.messages.where('threadId').equals(threadId).toArray();
+};
+
+export const createMessage = async (threadId: string, message: UIMessage) => {
+  return await db.messages.add({
+    id: message.id,
+    threadId,
+    createdAt: new Date(),
+    parts: message.parts,
+    role: message.role,
+  });
+};

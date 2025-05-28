@@ -1,12 +1,12 @@
 'use client';
-import React, { memo, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { memo, useMemo, useState } from 'react';
 import ReactMarkdown, { type Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import { marked } from 'marked';
 import ShikiHighlighter from 'react-shiki';
-import type { ComponentProps, JSX } from 'react';
+import type { ComponentProps } from 'react';
 import type { ExtraProps } from 'react-markdown';
 
 type CodeComponentProps = ComponentProps<'code'> & ExtraProps;

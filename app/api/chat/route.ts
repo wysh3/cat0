@@ -1,7 +1,4 @@
-import {
-  createGoogleGenerativeAI,
-  GoogleGenerativeAIProviderOptions,
-} from '@ai-sdk/google';
+import { createGoogleGenerativeAI } from '@ai-sdk/google';
 import { createMistral } from '@ai-sdk/mistral';
 import { createOpenAI } from '@ai-sdk/openai';
 import { createOpenRouter } from '@openrouter/ai-sdk-provider';
@@ -34,16 +31,11 @@ export async function POST(req: Request) {
   const model4 = openrouter('google/gemini-2.5-pro-preview');
 
   const result = streamText({
-    model: model3,
+    model: model2,
     messages,
     onError: ({ error }) => {
       console.error(error);
     },
-    // providerOptions: {
-    //   thinkingConfig: {
-    //     thinkingBudget: 0,
-    //   },
-    // } satisfies GoogleGenerativeAIProviderOptions,
     experimental_transform: [smoothStream({ chunking: 'word' })],
   });
 

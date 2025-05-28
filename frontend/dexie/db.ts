@@ -1,30 +1,30 @@
+import { UIMessage } from 'ai';
 import Dexie, { type EntityTable } from 'dexie';
 
-interface Chat {
+interface Thread {
   id: string;
   title: string;
   createdAt: Date;
   updatedAt: Date;
 }
 
-interface Message {
+interface DBMessage {
   id: string;
-  chatId: string;
-  content: string;
-  role: 'user' | 'assistant';
+  threadId: string;
+  parts: UIMessage['parts'];
+  role: 'user' | 'assistant' | 'system' | 'data';
   createdAt: Date;
-  updatedAt: Date;
 }
 
 const db = new Dexie('satori') as Dexie & {
-  chats: EntityTable<Chat, 'id'>;
-  messages: EntityTable<Message, 'id'>;
+  threads: EntityTable<Thread, 'id'>;
+  messages: EntityTable<DBMessage, 'id'>;
 };
 
 db.version(1).stores({
-  chats: 'id, title, updatedAt',
-  messages: 'id, chatId, updatedAt',
+  threads: 'id, title, updatedAt',
+  messages: 'id, threadId, createdAt',
 });
 
-export type { Chat, Message };
+export type { Thread, DBMessage };
 export { db };

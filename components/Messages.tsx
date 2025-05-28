@@ -21,9 +21,7 @@ function PureMessages({
         <PreviewMessage
           key={message.id}
           message={message}
-          setMessages={setMessages}
           isLoading={status === 'streaming' && messages.length - 1 === index}
-          reload={reload}
         />
       ))}
     </section>

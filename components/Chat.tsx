@@ -1,0 +1,51 @@
+import { useChat } from '@ai-sdk/react';
+import Messages from './Messages';
+import ChatInput from './ChatInput';
+import { UIMessage } from 'ai';
+import { DBMessage } from '@/frontend/dexie/db';
+import { v4 as uuidv4 } from 'uuid';
+import { createMessage } from '@/frontend/dexie/queries';
+
+export default function Chat({
+  threadId,
+  initialMessages,
+}: {
+  threadId: string;
+  initialMessages: UIMessage[] | undefined;
+}) {
+  const { messages, setMessages, input, setInput, append, reload, status } =
+    useChat({
+      id: threadId,
+      initialMessages,
+      experimental_throttle: 50,
+      onFinish: async ({ parts }) => {
+        const aiResponse: UIMessage = {
+          id: uuidv4(),
+          parts: parts as UIMessage['parts'],
+          role: 'assistant',
+          createdAt: new Date(),
+          content: '',
+        };
+
+        await createMessage(threadId, aiResponse);
+      },
+    });
+
+  return (
+    <main className="flex flex-col w-full max-w-3xl py-24 mx-auto">
+      <Messages
+        messages={messages}
+        setMessages={setMessages}
+        status={status}
+        reload={reload}
+      />
+      <ChatInput
+        append={append}
+        threadId={threadId}
+        status={status}
+        setInput={setInput}
+        input={input}
+      />
+    </main>
+  );
+}

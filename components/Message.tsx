@@ -1,19 +1,15 @@
 import { memo } from 'react';
-import MarkdownRenderer from '@/components/markdown/MemoizedMarkdown';
+import MarkdownRenderer from '@/components/MemoizedMarkdown';
 import { cn } from '@/lib/utils';
-import { ChatRequestOptions, Message, UIMessage } from 'ai';
+import { UIMessage } from 'ai';
 import equal from 'fast-deep-equal';
 import MessageControls from './MessageControls';
 
 function PureMessage({
   message,
-  setMessages,
   isLoading,
-  reload,
 }: {
   message: UIMessage;
-  setMessages: (messages: Message[]) => void;
-  reload: (chatRequestOptions?: ChatRequestOptions) => void;
   isLoading: boolean;
 }) {
   return (
@@ -24,7 +20,6 @@ function PureMessage({
       )}
     >
       {message.parts.map((part, index) => {
-        console.log(part);
         const { type } = part;
         const key = `message-${message.id}-part-${index}`;
 
