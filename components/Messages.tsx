@@ -1,27 +1,32 @@
-import { Status } from '@/lib/types';
-import PreviewMessage from './Message';
-import { ChatRequestOptions, UIMessage, type Message } from 'ai';
-import equal from 'fast-deep-equal';
 import { memo } from 'react';
+import PreviewMessage from './Message';
+import { UIMessage } from 'ai';
+import { UseChatHelpers } from '@ai-sdk/react';
+import equal from 'fast-deep-equal';
 
 function PureMessages({
+  threadId,
   messages,
   status,
   setMessages,
   reload,
 }: {
+  threadId: string;
   messages: UIMessage[];
-  setMessages: (messages: Message[]) => void;
-  status: Status;
-  reload: (chatRequestOptions?: ChatRequestOptions) => void;
+  setMessages: UseChatHelpers['setMessages'];
+  reload: UseChatHelpers['reload'];
+  status: UseChatHelpers['status'];
 }) {
   return (
     <section className="flex flex-col gap-12">
       {messages.map((message, index) => (
         <PreviewMessage
           key={message.id}
+          threadId={threadId}
           message={message}
           isLoading={status === 'streaming' && messages.length - 1 === index}
+          setMessages={setMessages}
+          reload={reload}
         />
       ))}
     </section>
@@ -29,9 +34,9 @@ function PureMessages({
 }
 
 const Messages = memo(PureMessages, (prevProps, nextProps) => {
+  if (prevProps.status !== nextProps.status) return false;
   if (prevProps.messages.length !== nextProps.messages.length) return false;
   if (!equal(prevProps.messages, nextProps.messages)) return false;
-  if (prevProps.status !== nextProps.status) return false;
   return true;
 });
 

@@ -1,27 +1,27 @@
 import { Dispatch, memo, SetStateAction } from 'react';
 import { Input } from './ui/input';
-import { UIMessage } from 'ai';
+import { Message, UIMessage } from 'ai';
 import {
   createMessage,
   createThread,
   updateThread,
 } from '@/frontend/dexie/queries';
-import { useCompletion } from '@ai-sdk/react';
+import { UseChatHelpers, useCompletion } from '@ai-sdk/react';
 import { v4 as uuidv4 } from 'uuid';
 import { useNavigate, useParams } from 'react-router';
 
 function PureChatInput({
-  append,
   threadId,
   status,
-  setInput,
   input,
+  setInput,
+  append,
 }: {
-  append: (message: UIMessage) => void;
   threadId: string;
-  status: 'submitted' | 'streaming' | 'ready' | 'error';
-  setInput: Dispatch<SetStateAction<string>>;
-  input: string;
+  status: UseChatHelpers['status'];
+  input: UseChatHelpers['input'];
+  setInput: UseChatHelpers['setInput'];
+  append: UseChatHelpers['append'];
 }) {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -60,10 +60,7 @@ function PureChatInput({
           await createThread(threadId);
           navigate(`/chat/${threadId}`);
 
-          await Promise.all([
-            complete(value),
-            createMessage(threadId, userMessage),
-          ]);
+          Promise.all([complete(value), createMessage(threadId, userMessage)]);
         } catch (error) {
           console.error('Failed to persist chat data:', error);
           // Consider reverting navigation or showing error message
@@ -105,7 +102,6 @@ function PureChatInput({
 const ChatInput = memo(PureChatInput, (prevProps, nextProps) => {
   if (prevProps.status !== nextProps.status) return false;
   if (prevProps.input !== nextProps.input) return false;
-  if (prevProps.threadId !== nextProps.threadId) return false;
   return true;
 });
 

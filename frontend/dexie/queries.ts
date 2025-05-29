@@ -41,7 +41,10 @@ export const deleteAllThreads = async () => {
 
 export const getMessages = async (threadId?: string) => {
   if (!threadId) return [];
-  return await db.messages.where('threadId').equals(threadId).toArray();
+  return await db.messages
+    .orderBy('createdAt')
+    .filter((message) => message.threadId === threadId)
+    .toArray();
 };
 
 export const createMessage = async (threadId: string, message: UIMessage) => {
@@ -52,4 +55,15 @@ export const createMessage = async (threadId: string, message: UIMessage) => {
     parts: message.parts,
     role: message.role,
   });
+};
+
+export const deleteTrailingMessages = async (
+  threadId: string,
+  createdAt: Date
+) => {
+  await db.messages
+    .where('threadId')
+    .equals(threadId)
+    .filter((message) => message.createdAt >= createdAt)
+    .delete();
 };

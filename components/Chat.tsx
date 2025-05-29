@@ -12,7 +12,7 @@ export default function Chat({
   threadId: string;
   initialMessages: UIMessage[] | undefined;
 }) {
-  const { messages, setMessages, input, setInput, append, reload, status } =
+  const { messages, setMessages, reload, input, setInput, append, status } =
     useChat({
       id: threadId,
       initialMessages,
@@ -22,7 +22,6 @@ export default function Chat({
           id: uuidv4(),
           parts: parts as UIMessage['parts'],
           role: 'assistant',
-          createdAt: new Date(),
           content: '',
         };
 
@@ -37,9 +36,10 @@ export default function Chat({
   return (
     <main className="flex flex-col w-full max-w-3xl py-24 mx-auto">
       <Messages
+        threadId={threadId}
         messages={messages}
-        setMessages={setMessages}
         status={status}
+        setMessages={setMessages}
         reload={reload}
       />
       <ChatInput

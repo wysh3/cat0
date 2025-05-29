@@ -1,14 +1,16 @@
-import { Check, Copy } from 'lucide-react';
-import { useState } from 'react';
+import { Dispatch, SetStateAction, useState } from 'react';
 import { Button } from './ui/button';
 import { cn } from '@/lib/utils';
+import { Check, Copy, SquarePen } from 'lucide-react';
 
 export default function MessageControls({
   content,
   role,
+  setMode,
 }: {
   content: string;
   role: 'data' | 'system' | 'user' | 'assistant';
+  setMode?: Dispatch<SetStateAction<'view' | 'edit'>>;
 }) {
   const [copied, setCopied] = useState(false);
 
@@ -32,6 +34,11 @@ export default function MessageControls({
       <Button variant="ghost" size="icon" onClick={handleCopy}>
         {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
       </Button>
+      {setMode && (
+        <Button variant="ghost" size="icon" onClick={() => setMode('edit')}>
+          <SquarePen className="w-4 h-4" />
+        </Button>
+      )}
     </div>
   );
 }
