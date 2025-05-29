@@ -27,14 +27,16 @@ export async function POST(req: Request) {
 - The title must be a maximum of 80 characters.
 - Do NOT use quotation marks or colons.
 - Focus on capturing the core intent or topic of the message in a clear, natural way.
-- Avoid generic titles—make it specific enough to reflect the actual question or request.
-- Do not directly reply to the user's message.
 `,
       prompt,
     });
 
     return NextResponse.json({ title });
   } catch (error) {
-    return NextResponse.json(error, { status: 500 });
+    console.error('Failed to generate title:', error);
+    return NextResponse.json(
+      { error: 'Failed to generate title' },
+      { status: 500 }
+    );
   }
 }

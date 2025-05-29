@@ -39,7 +39,7 @@ function PureChatInput({
     },
   });
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const value = input.trim();
 
     if (!value) return;
@@ -56,18 +56,23 @@ function PureChatInput({
       setInput('');
 
       if (!id) {
-        navigate(`/chat/${threadId}`);
+        try {
+          await createThread(threadId);
+          navigate(`/chat/${threadId}`);
 
-        Promise.all([
-          createThread(threadId),
-          complete(value),
-          createMessage(threadId, userMessage),
-        ]).catch((error) => {
+          await Promise.all([
+            complete(value),
+            createMessage(threadId, userMessage),
+          ]);
+        } catch (error) {
           console.error('Failed to persist chat data:', error);
-        });
+          // Consider reverting navigation or showing error message
+        }
       } else {
         createMessage(threadId, userMessage).catch((error) => {
           console.error('Failed to save message:', error);
+          // Consider showing a toast notification or inline error message
+          // to inform the user that the message wasn't saved
         });
       }
     } catch (error) {

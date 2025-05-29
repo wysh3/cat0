@@ -14,7 +14,6 @@ import { Input } from './ui/input';
 import { deleteAllThreads, getThreads } from '@/frontend/dexie/queries';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { Link, NavLink, useParams } from 'react-router';
-import { cn } from '@/lib/utils';
 
 export default function ChatSidebar() {
   const threads = useLiveQuery(() => getThreads());

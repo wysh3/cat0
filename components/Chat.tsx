@@ -2,7 +2,6 @@ import { useChat } from '@ai-sdk/react';
 import Messages from './Messages';
 import ChatInput from './ChatInput';
 import { UIMessage } from 'ai';
-import { DBMessage } from '@/frontend/dexie/db';
 import { v4 as uuidv4 } from 'uuid';
 import { createMessage } from '@/frontend/dexie/queries';
 
@@ -27,7 +26,11 @@ export default function Chat({
           content: '',
         };
 
-        await createMessage(threadId, aiResponse);
+        try {
+          await createMessage(threadId, aiResponse);
+        } catch (error) {
+          console.error('Failed to persist AI response:', error);
+        }
       },
     });
 

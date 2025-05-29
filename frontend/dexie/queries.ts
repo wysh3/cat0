@@ -11,7 +11,10 @@ export const createThread = async (id: string) => {
 };
 
 export const updateThread = async (id: string, title: string) => {
-  return await db.threads.update(id, { title });
+  return await db.threads.update(id, {
+    title,
+    updatedAt: new Date(),
+  });
 };
 
 export const getThreads = async () => {
