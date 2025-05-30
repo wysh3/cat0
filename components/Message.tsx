@@ -1,16 +1,11 @@
-import { Dispatch, memo, SetStateAction, useState } from 'react';
+import { memo, useState } from 'react';
 import MarkdownRenderer from '@/components/MemoizedMarkdown';
 import { cn } from '@/lib/utils';
-import { Message, UIMessage } from 'ai';
+import { UIMessage } from 'ai';
 import equal from 'fast-deep-equal';
 import MessageControls from './MessageControls';
-import { Textarea } from './ui/textarea';
 import { UseChatHelpers } from '@ai-sdk/react';
-import { Button } from './ui/button';
-import {
-  createMessage,
-  deleteTrailingMessages,
-} from '@/frontend/dexie/queries';
+import MessageEditor from './MessageEditor';
 
 function PureMessage({
   threadId,
@@ -57,16 +52,25 @@ function PureMessage({
               {mode === 'view' && <p>{part.text}</p>}
 
               <MessageControls
+                threadId={threadId}
                 content={part.text}
-                role={message.role}
+                message={message}
                 setMode={setMode}
+                setMessages={setMessages}
+                reload={reload}
               />
             </div>
           ) : (
             <div key={key} className="group flex flex-col gap-2 w-full">
               <MarkdownRenderer content={part.text} id={message.id} />
               {!isLoading && (
-                <MessageControls content={part.text} role={message.role} />
+                <MessageControls
+                  threadId={threadId}
+                  content={part.text}
+                  message={message}
+                  setMessages={setMessages}
+                  reload={reload}
+                />
               )}
             </div>
           );
@@ -86,61 +90,3 @@ const PreviewMessage = memo(PureMessage, (prevProps, nextProps) => {
 PreviewMessage.displayName = 'PreviewMessage';
 
 export default PreviewMessage;
-
-function MessageEditor({
-  threadId,
-  message,
-  content,
-  setMessages,
-  reload,
-  setMode,
-}: {
-  threadId: string;
-  message: UIMessage;
-  content: string;
-  setMessages: UseChatHelpers['setMessages'];
-  setMode: Dispatch<SetStateAction<'view' | 'edit'>>;
-  reload: UseChatHelpers['reload'];
-}) {
-  const [draftContent, setDraftContent] = useState(content);
-
-  const handleSave = async () => {
-    await deleteTrailingMessages(threadId, message.createdAt as Date);
-
-    const updatedMessage = {
-      ...message,
-      parts: [
-        {
-          type: 'text' as const,
-          text: draftContent,
-        },
-      ],
-    };
-
-    setMessages((messages) => {
-      const index = messages.findIndex((m) => m.id === message.id);
-
-      if (index !== -1) {
-        return [...messages.slice(0, index), updatedMessage];
-      }
-
-      return messages;
-    });
-
-    await createMessage(threadId, updatedMessage);
-
-    reload();
-    setMode('view');
-  };
-
-  return (
-    <div>
-      <Textarea
-        value={draftContent}
-        onChange={(e) => setDraftContent(e.target.value)}
-      />
-      <Button onClick={handleSave}>Save</Button>
-      <Button onClick={() => setMode('view')}>Cancel</Button>
-    </div>
-  );
-}

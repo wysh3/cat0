@@ -8,6 +8,7 @@ import { marked } from 'marked';
 import ShikiHighlighter from 'react-shiki';
 import type { ComponentProps } from 'react';
 import type { ExtraProps } from 'react-markdown';
+import { Check, Copy } from 'lucide-react';
 
 type CodeComponentProps = ComponentProps<'code'> & ExtraProps;
 
@@ -73,8 +74,8 @@ function Codebar({ lang, codeString }: { lang: string; codeString: string }) {
   return (
     <div className="flex justify-between items-center px-4 py-2 bg-secondary text-foreground rounded-t-md">
       <span className="text-sm font-mono">{lang}</span>
-      <button onClick={copyToClipboard} className="text-sm">
-        {copied ? 'Copied!' : 'Copy'}
+      <button onClick={copyToClipboard} className="text-sm cursor-pointer">
+        {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
       </button>
     </div>
   );

@@ -1,6 +1,6 @@
-import { Dispatch, memo, SetStateAction } from 'react';
+import { memo, useRef } from 'react';
 import { Input } from './ui/input';
-import { Message, UIMessage } from 'ai';
+import { UIMessage } from 'ai';
 import {
   createMessage,
   createThread,
@@ -25,6 +25,8 @@ function PureChatInput({
 }) {
   const navigate = useNavigate();
   const { id } = useParams();
+  const isCreatingThread = useRef(false);
+  const isSubmitting = useRef(false);
 
   const { complete } = useCompletion({
     api: '/api/completion',
@@ -42,7 +44,9 @@ function PureChatInput({
   const handleSubmit = async () => {
     const value = input.trim();
 
-    if (!value) return;
+    if (!value || isSubmitting.current) return;
+
+    isSubmitting.current = true;
 
     try {
       const userMessage: UIMessage = {
@@ -56,14 +60,22 @@ function PureChatInput({
       setInput('');
 
       if (!id) {
-        try {
-          await createThread(threadId);
-          navigate(`/chat/${threadId}`);
+        if (!isCreatingThread.current) {
+          isCreatingThread.current = true;
+          try {
+            await createThread(threadId);
+            navigate(`/chat/${threadId}`);
 
-          Promise.all([complete(value), createMessage(threadId, userMessage)]);
-        } catch (error) {
-          console.error('Failed to persist chat data:', error);
-          // Consider reverting navigation or showing error message
+            await Promise.all([
+              complete(value),
+              createMessage(threadId, userMessage),
+            ]);
+          } catch (error) {
+            console.error('Failed to persist chat data:', error);
+            // Consider reverting navigation or showing error message
+          } finally {
+            isCreatingThread.current = false;
+          }
         }
       } else {
         createMessage(threadId, userMessage).catch((error) => {
@@ -74,6 +86,8 @@ function PureChatInput({
       }
     } catch (error) {
       console.error('Failed to submit message:', error);
+    } finally {
+      isSubmitting.current = false;
     }
   };
 

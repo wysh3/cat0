@@ -2,6 +2,11 @@ import { UIMessage } from 'ai';
 import { db } from './db';
 
 export const createThread = async (id: string) => {
+  const existingThread = await db.threads.get(id);
+  if (existingThread) {
+    return existingThread;
+  }
+
   return await db.threads.add({
     id,
     title: 'New Chat',
@@ -59,11 +64,20 @@ export const createMessage = async (threadId: string, message: UIMessage) => {
 
 export const deleteTrailingMessages = async (
   threadId: string,
-  createdAt: Date
+  createdAt: Date,
+  gte: boolean = true
 ) => {
-  await db.messages
-    .where('threadId')
-    .equals(threadId)
-    .filter((message) => message.createdAt >= createdAt)
-    .delete();
+  if (gte) {
+    await db.messages
+      .where('threadId')
+      .equals(threadId)
+      .filter((message) => message.createdAt >= createdAt)
+      .delete();
+  } else {
+    await db.messages
+      .where('threadId')
+      .equals(threadId)
+      .filter((message) => message.createdAt > createdAt)
+      .delete();
+  }
 };
