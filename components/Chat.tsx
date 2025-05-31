@@ -34,7 +34,7 @@ export default function Chat({
     });
 
   return (
-    <main className="flex flex-col w-full max-w-3xl py-24 mx-auto">
+    <main className="flex flex-col w-full max-w-3xl pt-10 pb-44 mx-auto">
       <Messages
         threadId={threadId}
         messages={messages}

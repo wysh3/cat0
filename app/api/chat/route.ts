@@ -26,7 +26,7 @@ export async function POST(req: Request) {
   const { messages } = await req.json();
 
   const model = google('gemini-2.5-flash-preview-04-17');
-  const model2 = mistral('mistral-small-latest');
+  const model2 = mistral('mistral-large-latest');
   const model3 = openai('gpt-4.1-mini');
   const model4 = openrouter('deepseek/deepseek-r1-0528-qwen3-8b:free');
 
