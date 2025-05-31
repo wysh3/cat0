@@ -29,12 +29,14 @@ function PureChatInput({
   input,
   setInput,
   append,
+  stop,
 }: {
   threadId: string;
   status: UseChatHelpers['status'];
   input: UseChatHelpers['input'];
   setInput: UseChatHelpers['setInput'];
   append: UseChatHelpers['append'];
+  stop: UseChatHelpers['stop'];
 }) {
   const { textareaRef, adjustHeight } = useAutoResizeTextarea({
     minHeight: 72,
@@ -70,6 +72,7 @@ function PureChatInput({
     try {
       append(userMessage);
       setInput('');
+      adjustHeight(true);
 
       if (!id) {
         await handleNewThreadSubmission(userMessage, value);
@@ -83,7 +86,7 @@ function PureChatInput({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey && input.trim()) {
+    if (e.key === 'Enter' && !e.shiftKey && e.currentTarget.value.trim()) {
       e.preventDefault();
       handleSubmit();
     }
