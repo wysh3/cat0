@@ -12,18 +12,18 @@ export default function MessageReasoning({
   const [isExpanded, setIsExpanded] = useState(true);
 
   return (
-    <div className="flex flex-col gap-2 pb-2">
+    <div className="flex flex-col gap-2 pb-2 max-w-3xl w-full">
       <button
         onClick={() => setIsExpanded(!isExpanded)}
         className="flex items-center gap-2 text-muted-foreground"
       >
         {isExpanded ? (
           <span>
-            <ChevronDownIcon className="w-4 h-4" />
+            <ChevronUpIcon className="w-4 h-4" />
           </span>
         ) : (
           <span>
-            <ChevronUpIcon className="w-4 h-4" />
+            <ChevronDownIcon className="w-4 h-4" />
           </span>
         )}
         Reasoning

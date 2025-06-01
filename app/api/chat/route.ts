@@ -26,7 +26,7 @@ export async function POST(req: Request) {
   const { messages } = await req.json();
 
   const model = google('gemini-2.5-flash-preview-04-17');
-  const model2 = mistral('mistral-large-latest');
+  const model2 = mistral('mistral-small-latest');
   const model3 = openai('gpt-4.1-mini');
   const model4 = openrouter('deepseek/deepseek-r1:free');
 
@@ -49,7 +49,8 @@ export async function POST(req: Request) {
     
     Examples:
     - Inline: The equation $E = mc^2$ shows mass-energy equivalence.
-    - Display: $$\\frac{d}{dx}\\sin(x) = \\cos(x)$$
+    - Display: 
+    $$\\frac{d}{dx}\\sin(x) = \\cos(x)$$
     `,
     experimental_transform: [smoothStream({ chunking: 'word' })],
   });

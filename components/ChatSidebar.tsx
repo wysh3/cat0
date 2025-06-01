@@ -9,9 +9,8 @@ import {
   SidebarMenuButton,
   SidebarFooter,
 } from '@/components/ui/sidebar';
-import { Button, buttonVariants } from './ui/button';
-import { Input } from './ui/input';
-import { deleteAllThreads, getThreads } from '@/frontend/dexie/queries';
+import { buttonVariants } from './ui/button';
+import { getThreads } from '@/frontend/dexie/queries';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { Link, NavLink, useParams } from 'react-router';
 
@@ -39,10 +38,6 @@ export default function ChatSidebar() {
         >
           New Chat
         </Link>
-        <Button variant="outline" className="w-full" onClick={deleteAllThreads}>
-          Clear All Chats
-        </Button>
-        <Input placeholder="Search chats" />
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
@@ -65,7 +60,12 @@ export default function ChatSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter />
+      <SidebarFooter>
+        {/* TODO: Add Settings Page */}
+        <Link to="/settings" className={buttonVariants()}>
+          Settings
+        </Link>
+      </SidebarFooter>
     </Sidebar>
   );
 }

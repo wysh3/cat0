@@ -1,7 +1,7 @@
 'use client';
 
-import { ArrowRight, ChevronDown, Paperclip, Check } from 'lucide-react';
-import { memo, useState } from 'react';
+import { ChevronDown, Check, ArrowUpIcon } from 'lucide-react';
+import { memo, useState, useCallback } from 'react';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -22,27 +22,63 @@ import {
 } from '@/frontend/dexie/queries';
 import { UIMessage } from 'ai';
 import { v4 as uuidv4 } from 'uuid';
+import { StopIcon } from './ui/icons';
+import { toast } from 'sonner';
+
+// Constants
+const AI_MODELS = [
+  'Deepseek R1 0528',
+  'Gemini 2.5 Pro',
+  'Gemini 2.5 Flash',
+  'o3',
+  'GPT-4o-mini',
+  'GPT-4o',
+  'Mistral Large',
+] as const;
+
+type AIModel = (typeof AI_MODELS)[number];
+
+interface ChatInputProps {
+  threadId: string;
+  status: UseChatHelpers['status'];
+  input: UseChatHelpers['input'];
+  setInput: UseChatHelpers['setInput'];
+  setMessages: UseChatHelpers['setMessages'];
+  append: UseChatHelpers['append'];
+  stop: UseChatHelpers['stop'];
+}
+
+interface StopButtonProps {
+  stop: UseChatHelpers['stop'];
+  setMessages: UseChatHelpers['setMessages'];
+}
+
+interface SendButtonProps {
+  onSubmit: () => void;
+  disabled: boolean;
+}
+
+const createUserMessage = (text: string): UIMessage => ({
+  id: uuidv4(),
+  parts: [{ type: 'text', text }],
+  role: 'user',
+  content: text,
+});
 
 function PureChatInput({
   threadId,
   status,
   input,
   setInput,
+  setMessages,
   append,
   stop,
-}: {
-  threadId: string;
-  status: UseChatHelpers['status'];
-  input: UseChatHelpers['input'];
-  setInput: UseChatHelpers['setInput'];
-  append: UseChatHelpers['append'];
-  stop: UseChatHelpers['stop'];
-}) {
+}: ChatInputProps) {
   const { textareaRef, adjustHeight } = useAutoResizeTextarea({
     minHeight: 72,
     maxHeight: 200,
   });
-  const [selectedModel, setSelectedModel] = useState('Mistral Large');
+  const [selectedModel, setSelectedModel] = useState<AIModel>('Mistral Large');
 
   const navigate = useNavigate();
   const { id } = useParams();
@@ -50,23 +86,47 @@ function PureChatInput({
   const { complete } = useCompletion({
     api: '/api/completion',
     onResponse: async (response) => {
-      if (!response.ok) {
-        const errorBody = await response.json();
-        return console.log(errorBody);
+      try {
+        if (response.ok) {
+          const { title } = await response.json();
+          await updateThread(threadId, title);
+        } else {
+          const { error } = await response.json();
+          toast.error(error || 'Failed to update thread title');
+        }
+      } catch (error) {
+        console.error('Thread title update error:', error);
+        toast.error('Failed to update thread title');
       }
-
-      const { title } = await response.json();
-      await updateThread(threadId, title);
     },
   });
 
+  const handleNewThreadSubmission = useCallback(
+    async (userMessage: UIMessage, inputValue: string) => {
+      await createThread(threadId);
+      navigate(`/chat/${threadId}`);
+
+      await Promise.all([
+        complete(inputValue),
+        createMessage(threadId, userMessage),
+      ]);
+    },
+    [threadId, navigate, complete]
+  );
+
+  const handleExistingThreadSubmission = useCallback(
+    async (userMessage: UIMessage) => {
+      await createMessage(threadId, userMessage);
+    },
+    [threadId]
+  );
+
   const handleSubmit = async () => {
-    if (status !== 'ready') {
+    if (status !== 'ready' || !input.trim()) {
       return;
     }
 
     const value = input.trim();
-
     const userMessage = createUserMessage(value);
 
     try {
@@ -81,82 +141,57 @@ function PureChatInput({
       }
     } catch (error) {
       console.error('Failed to submit message:', error);
-      // TODO: show user-facing error message here
+      toast.error('Failed to send message. Please try again.');
     }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey && e.currentTarget.value.trim()) {
+    if (e.key === 'Enter' && !e.shiftKey && input.trim()) {
       e.preventDefault();
       handleSubmit();
     }
   };
 
-  const createUserMessage = (text: string): UIMessage => ({
-    id: uuidv4(),
-    parts: [{ type: 'text', text }],
-    role: 'user',
-    content: '',
-  });
+  const handleInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+      setInput(e.target.value);
+      adjustHeight();
+    },
+    [setInput, adjustHeight]
+  );
 
-  const handleNewThreadSubmission = async (
-    userMessage: UIMessage,
-    inputValue: string
-  ) => {
-    try {
-      await createThread(threadId);
-      navigate(`/chat/${threadId}`);
-
-      await Promise.all([
-        complete(inputValue),
-        createMessage(threadId, userMessage),
-      ]);
-    } catch (error) {
-      console.error('Failed to create new thread:', error);
-      throw error;
-    }
-  };
-
-  const handleExistingThreadSubmission = async (userMessage: UIMessage) => {
-    try {
-      await createMessage(threadId, userMessage);
-    } catch (error) {
-      console.error('Failed to save message to existing thread:', error);
-      throw error;
-    }
-  };
-
-  const AI_MODELS = [
-    'Gemini 2.5 Flash',
-    'Gemini 2.5 Pro',
-    'Deepseek R1 0528',
-    'Mistral Large',
-  ];
+  const isDisabled = !input.trim() || status !== 'ready';
 
   return (
     <div className="fixed bottom-0 w-full max-w-3xl">
-      <div className="bg-muted/10 rounded-t-[20px] border p-2 pb-0 w-full backdrop-blur-lg">
+      <div className="bg-muted/50 rounded-t-[20px] p-2 pb-0 w-full backdrop-blur-lg">
         <div className="relative">
           <div className="bg-muted rounded-t-[12px] flex flex-col">
-            <div className="overflow-y-auto" style={{ maxHeight: '300px' }}>
+            <div className="overflow-y-auto max-h-[300px]">
               <Textarea
-                id="ai-input-15"
+                id="chat-input"
                 value={input}
-                placeholder={'What can I do for you?'}
+                placeholder="What can I do for you?"
                 className={cn(
-                  'w-full rounded-t-[12px] px-4 py-3 bg-muted border-none text-foreground placeholder:text-muted-foreground resize-none focus-visible:ring-0 focus-visible:ring-offset-0 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-muted hover:scrollbar-thumb-muted-foreground/50 scrollbar-thumb-rounded-full',
+                  'w-full rounded-t-[12px] px-4 py-3 bg-accent border-none text-foreground',
+                  'placeholder:text-muted-foreground resize-none',
+                  'focus-visible:ring-0 focus-visible:ring-offset-0',
+                  'scrollbar-thin scrollbar-track-transparent scrollbar-thumb-muted',
+                  'hover:scrollbar-thumb-muted-foreground/50 scrollbar-thumb-rounded-full',
                   'min-h-[72px]'
                 )}
                 ref={textareaRef}
                 onKeyDown={handleKeyDown}
-                onChange={(e) => {
-                  setInput(e.target.value);
-                  adjustHeight();
-                }}
+                onChange={handleInputChange}
+                aria-label="Chat message input"
+                aria-describedby="chat-input-description"
               />
+              <span id="chat-input-description" className="sr-only">
+                Press Enter to send, Shift+Enter for new line
+              </span>
             </div>
 
-            <div className="h-14 bg-muted rounded-b-xl flex items-center">
+            <div className="h-14 bg-muted flex items-center">
               <div className="absolute left-3 right-3 bottom-3 flex items-center justify-between w-[calc(100%-24px)]">
                 <div className="flex items-center gap-2">
                   <DropdownMenu>
@@ -164,6 +199,7 @@ function PureChatInput({
                       <Button
                         variant="ghost"
                         className="flex items-center gap-1 h-8 pl-2 pr-2 text-xs rounded-md text-foreground hover:bg-accent focus-visible:ring-1 focus-visible:ring-offset-0 focus-visible:ring-blue-500"
+                        aria-label={`Selected model: ${selectedModel}`}
                       >
                         <div className="flex items-center gap-1">
                           {selectedModel}
@@ -186,49 +222,22 @@ function PureChatInput({
                         >
                           <span>{model}</span>
                           {selectedModel === model && (
-                            <Check className="w-4 h-4 text-blue-500" />
+                            <Check
+                              className="w-4 h-4 text-blue-500"
+                              aria-label="Selected"
+                            />
                           )}
                         </DropdownMenuItem>
                       ))}
                     </DropdownMenuContent>
                   </DropdownMenu>
-                  {/* <div className="h-4 w-px bg-border mx-0.5" /> */}
-                  {/* TODO: Add file attachment */}
-                  {/* <label
-                    className={cn(
-                      'rounded-lg p-2 bg-muted cursor-pointer',
-                      'hover:bg-accent focus-visible:ring-1 focus-visible:ring-offset-0 focus-visible:ring-blue-500',
-                      'text-muted-foreground hover:text-foreground'
-                    )}
-                    aria-label="Attach file"
-                  >
-                    <input type="file" className="hidden" />
-                    <Paperclip className="w-4 h-4 transition-colors" />
-                  </label> */}
                 </div>
 
-                <button
-                  type="button"
-                  className={cn(
-                    'rounded-lg p-2 bg-muted',
-                    'hover:bg-accent focus-visible:ring-1 focus-visible:ring-offset-0 focus-visible:ring-blue-500'
-                  )}
-                  aria-label="Send message"
-                  disabled={!input.trim()}
-                  onClick={() => {
-                    if (!input.trim()) return;
-                    setInput('');
-                    adjustHeight(true);
-                    handleSubmit();
-                  }}
-                >
-                  <ArrowRight
-                    className={cn(
-                      'w-4 h-4 text-foreground transition-opacity duration-200',
-                      input.trim() ? 'opacity-100' : 'opacity-30'
-                    )}
-                  />
-                </button>
+                {status === 'submitted' || status === 'streaming' ? (
+                  <StopButton stop={stop} setMessages={setMessages} />
+                ) : (
+                  <SendButton onSubmit={handleSubmit} disabled={isDisabled} />
+                )}
               </div>
             </div>
           </div>
@@ -239,11 +248,55 @@ function PureChatInput({
 }
 
 const ChatInput = memo(PureChatInput, (prevProps, nextProps) => {
-  if (prevProps.status !== nextProps.status) return false;
-  if (prevProps.input !== nextProps.input) return false;
-  return true;
+  return (
+    prevProps.status === nextProps.status &&
+    prevProps.input === nextProps.input &&
+    prevProps.threadId === nextProps.threadId
+  );
 });
 
 ChatInput.displayName = 'ChatInput';
+
+function PureStopButton({ stop, setMessages }: StopButtonProps) {
+  const handleClick = useCallback(() => {
+    stop();
+    setMessages((messages) => messages);
+  }, [stop, setMessages]);
+
+  return (
+    <Button
+      variant="secondary"
+      size="icon"
+      onClick={handleClick}
+      aria-label="Stop generating response"
+    >
+      <StopIcon />
+    </Button>
+  );
+}
+
+const StopButton = memo(PureStopButton);
+StopButton.displayName = 'StopButton';
+
+const PureSendButton = ({ onSubmit, disabled }: SendButtonProps) => {
+  return (
+    <Button
+      onClick={onSubmit}
+      variant="secondary"
+      size="icon"
+      disabled={disabled}
+      aria-label="Send message"
+      title={disabled ? 'Enter a message to send' : 'Send message'}
+    >
+      <ArrowUpIcon />
+    </Button>
+  );
+};
+
+const SendButton = memo(PureSendButton, (prevProps, nextProps) => {
+  return prevProps.disabled === nextProps.disabled;
+});
+
+SendButton.displayName = 'SendButton';
 
 export default ChatInput;

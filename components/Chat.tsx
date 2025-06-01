@@ -15,12 +15,12 @@ export default function Chat({
   const {
     messages,
     setMessages,
-    reload,
-    stop,
     input,
     setInput,
     append,
     status,
+    reload,
+    stop,
   } = useChat({
     id: threadId,
     initialMessages,
@@ -40,7 +40,6 @@ export default function Chat({
       }
     },
   });
-
   return (
     <main className="flex flex-col w-full max-w-3xl pt-10 pb-44 mx-auto">
       <Messages
@@ -54,6 +53,7 @@ export default function Chat({
         append={append}
         threadId={threadId}
         setInput={setInput}
+        setMessages={setMessages}
         input={input}
         status={status}
         stop={stop}
