@@ -3,6 +3,7 @@ import PreviewMessage from './Message';
 import { UIMessage } from 'ai';
 import { UseChatHelpers } from '@ai-sdk/react';
 import equal from 'fast-deep-equal';
+import MessageLoading from './ui/MessageLoading';
 
 function PureMessages({
   threadId,
@@ -18,17 +19,18 @@ function PureMessages({
   status: UseChatHelpers['status'];
 }) {
   return (
-    <section className="flex flex-col gap-12">
+    <section className="flex flex-col space-y-12">
       {messages.map((message, index) => (
         <PreviewMessage
           key={message.id}
           threadId={threadId}
           message={message}
-          isLoading={status === 'streaming' && messages.length - 1 === index}
+          isStreaming={status === 'streaming' && messages.length - 1 === index}
           setMessages={setMessages}
           reload={reload}
         />
       ))}
+      {status === 'submitted' && <MessageLoading />}
     </section>
   );
 }

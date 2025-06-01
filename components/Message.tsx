@@ -6,32 +6,44 @@ import equal from 'fast-deep-equal';
 import MessageControls from './MessageControls';
 import { UseChatHelpers } from '@ai-sdk/react';
 import MessageEditor from './MessageEditor';
+import MessageReasoning from './MessageReasoning';
 
 function PureMessage({
   threadId,
   message,
-  isLoading,
   setMessages,
   reload,
+  isStreaming,
 }: {
   threadId: string;
   message: UIMessage;
   setMessages: UseChatHelpers['setMessages'];
   reload: UseChatHelpers['reload'];
-  isLoading: boolean;
+  isStreaming: boolean;
 }) {
   const [mode, setMode] = useState<'view' | 'edit'>('view');
 
   return (
     <div
+      role="article"
       className={cn(
-        'flex w-full',
-        message.role === 'user' ? 'justify-end' : 'justify-start'
+        'flex flex-col',
+        message.role === 'user' ? 'items-end' : 'items-start'
       )}
     >
       {message.parts.map((part, index) => {
         const { type } = part;
         const key = `message-${message.id}-part-${index}`;
+
+        if (type === 'reasoning') {
+          return (
+            <MessageReasoning
+              key={key}
+              reasoning={part.reasoning}
+              id={message.id}
+            />
+          );
+        }
 
         if (type === 'text') {
           return message.role === 'user' ? (
@@ -63,7 +75,7 @@ function PureMessage({
           ) : (
             <div key={key} className="group flex flex-col gap-2 w-full">
               <MarkdownRenderer content={part.text} id={message.id} />
-              {!isLoading && (
+              {!isStreaming && (
                 <MessageControls
                   threadId={threadId}
                   content={part.text}
@@ -81,7 +93,7 @@ function PureMessage({
 }
 
 const PreviewMessage = memo(PureMessage, (prevProps, nextProps) => {
-  if (prevProps.isLoading !== nextProps.isLoading) return false;
+  if (prevProps.isStreaming !== nextProps.isStreaming) return false;
   if (prevProps.message.id !== nextProps.message.id) return false;
   if (!equal(prevProps.message.parts, nextProps.message.parts)) return false;
   return true;

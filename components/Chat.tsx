@@ -53,9 +53,9 @@ export default function Chat({
       <ChatInput
         append={append}
         threadId={threadId}
-        status={status}
         setInput={setInput}
         input={input}
+        status={status}
         stop={stop}
       />
     </main>

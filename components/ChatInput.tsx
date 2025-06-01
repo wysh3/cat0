@@ -135,16 +135,16 @@ function PureChatInput({
 
   return (
     <div className="fixed bottom-0 w-full max-w-3xl">
-      <div className="bg-muted/80 rounded-2xl p-2 w-full">
+      <div className="bg-muted/10 rounded-t-[20px] border p-2 pb-0 w-full backdrop-blur-lg">
         <div className="relative">
-          <div className="bg-muted relative flex flex-col rounded-2xl">
+          <div className="bg-muted rounded-t-[12px] flex flex-col">
             <div className="overflow-y-auto" style={{ maxHeight: '300px' }}>
               <Textarea
                 id="ai-input-15"
                 value={input}
                 placeholder={'What can I do for you?'}
                 className={cn(
-                  'w-full rounded-xl rounded-b-none px-4 py-3 bg-muted border-none text-foreground placeholder:text-muted-foreground resize-none focus-visible:ring-0 focus-visible:ring-offset-0 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-muted hover:scrollbar-thumb-muted-foreground/50 scrollbar-thumb-rounded-full',
+                  'w-full rounded-t-[12px] px-4 py-3 bg-muted border-none text-foreground placeholder:text-muted-foreground resize-none focus-visible:ring-0 focus-visible:ring-offset-0 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-muted hover:scrollbar-thumb-muted-foreground/50 scrollbar-thumb-rounded-full',
                   'min-h-[72px]'
                 )}
                 ref={textareaRef}
@@ -192,7 +192,7 @@ function PureChatInput({
                       ))}
                     </DropdownMenuContent>
                   </DropdownMenu>
-                  <div className="h-4 w-px bg-border mx-0.5" />
+                  {/* <div className="h-4 w-px bg-border mx-0.5" /> */}
                   {/* TODO: Add file attachment */}
                   {/* <label
                     className={cn(

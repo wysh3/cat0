@@ -26,13 +26,12 @@ export async function POST(req: Request) {
 
   try {
     const { text: title } = await generateText({
-      model: openai('gpt-4.1-mini'),
+      model: google('gemini-2.5-flash-preview-04-17'),
       system: `\n
-   Generate a concise thread title based on the user's first message in a conversation.
-- The title must be a maximum of 80 characters.
-- Do NOT use quotation marks or colons.
-- Focus on capturing the core intent or topic of the message in a clear, natural way.
-`,
+      - you will generate a short title based on the first message a user begins a conversation with
+      - ensure it is not more than 80 characters long
+      - the title should be a summary of the user's message
+      - do not use quotes or colons`,
       prompt,
     });
 

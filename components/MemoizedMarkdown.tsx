@@ -94,7 +94,7 @@ function parseMarkdownIntoBlocks(markdown: string): string[] {
 function PureMarkdownRendererBlock({ content }: { content: string }) {
   return (
     <ReactMarkdown
-      remarkPlugins={[remarkGfm, [remarkMath, { singleDollarTextMath: true }]]}
+      remarkPlugins={[remarkGfm, [remarkMath]]}
       rehypePlugins={[rehypeKatex]}
       components={components}
     >
