@@ -11,10 +11,10 @@ Blazingly-Fast, Open-source, and Free AI Chat App.
 - [ ] Add Delete Thread Button
 - [ ] add lastmessageat in Thread, index it and sort it by lastmessageat
 - [ ] Implement View Transitions from Theme Toggle
+- [ ] Integrate React LLM UI
 - [ ] Model Selection
 - [ ] BYOK
 - [ ] Message Editor Component
-- [ ] Integrate React LLM UI
 - [ ] Settings Page with:
 
   - [ ] Key Management

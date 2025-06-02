@@ -9,7 +9,7 @@ export default function MessageReasoning({
   reasoning: string;
   id: string;
 }) {
-  const [isExpanded, setIsExpanded] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   return (
     <div className="flex flex-col gap-2 pb-2 max-w-3xl w-full">

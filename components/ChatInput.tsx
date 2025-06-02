@@ -255,8 +255,6 @@ const ChatInput = memo(PureChatInput, (prevProps, nextProps) => {
   );
 });
 
-ChatInput.displayName = 'ChatInput';
-
 function PureStopButton({ stop, setMessages }: StopButtonProps) {
   const handleClick = useCallback(() => {
     stop();
@@ -270,25 +268,23 @@ function PureStopButton({ stop, setMessages }: StopButtonProps) {
       onClick={handleClick}
       aria-label="Stop generating response"
     >
-      <StopIcon />
+      <StopIcon size={24} />
     </Button>
   );
 }
 
 const StopButton = memo(PureStopButton);
-StopButton.displayName = 'StopButton';
 
 const PureSendButton = ({ onSubmit, disabled }: SendButtonProps) => {
   return (
     <Button
       onClick={onSubmit}
-      variant="secondary"
+      variant="outline"
       size="icon"
       disabled={disabled}
       aria-label="Send message"
-      title={disabled ? 'Enter a message to send' : 'Send message'}
     >
-      <ArrowUpIcon />
+      <ArrowUpIcon size={18} />
     </Button>
   );
 };
@@ -296,7 +292,5 @@ const PureSendButton = ({ onSubmit, disabled }: SendButtonProps) => {
 const SendButton = memo(PureSendButton, (prevProps, nextProps) => {
   return prevProps.disabled === nextProps.disabled;
 });
-
-SendButton.displayName = 'SendButton';
 
 export default ChatInput;

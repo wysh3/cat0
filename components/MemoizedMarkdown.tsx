@@ -12,8 +12,8 @@ import { Check, Copy } from 'lucide-react';
 
 type CodeComponentProps = ComponentProps<'code'> & ExtraProps;
 
-const components: Partial<Components> = {
-  code: CodeBlock,
+const components: Components = {
+  code: CodeBlock as Components['code'],
   pre: ({ children }) => <>{children}</>,
 };
 
@@ -35,7 +35,7 @@ function CodeBlock({
           theme={'tokyo-night'}
           className="text-sm font-mono !border-none"
           style={{
-            backgroundColor: 'rgba(138, 121, 171, 0.1)',
+            backgroundColor: 'rgba(20, 19, 28, 1)',
             borderRadius: '0',
           }}
           showLanguage={false}

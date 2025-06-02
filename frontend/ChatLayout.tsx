@@ -1,4 +1,8 @@
-import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
+import {
+  SidebarProvider,
+  SidebarTrigger,
+  useSidebar,
+} from '@/components/ui/sidebar';
 import ChatSidebar from '@/components/ChatSidebar';
 import { Outlet } from 'react-router';
 
@@ -7,9 +11,17 @@ export default function ChatLayout() {
     <SidebarProvider>
       <ChatSidebar />
       <main className="flex-1">
-        <SidebarTrigger />
+        <ChatSidebarTrigger />
         <Outlet />
       </main>
     </SidebarProvider>
   );
 }
+
+const ChatSidebarTrigger = () => {
+  const { state } = useSidebar();
+  if (state === 'collapsed') {
+    return <SidebarTrigger />;
+  }
+  return null;
+};

@@ -44,12 +44,4 @@ const Messages = memo(PureMessages, (prevProps, nextProps) => {
 
 Messages.displayName = 'Messages';
 
-function MessageError({ error }: { error: UseChatHelpers['error'] }) {
-  return (
-    <div className="text-red-500 flex flex-col items-center justify-center">
-      <p>Error: {error?.message}</p>
-    </div>
-  );
-}
-
 export default Messages;
