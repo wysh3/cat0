@@ -81,17 +81,18 @@ function PureChatInput({
 
   const { complete } = useCompletion({
     api: '/api/completion',
-    headers: {
-      'X-Google-API-Key': getKey('google') || '',
-    },
+    ...(getKey('google') && {
+      headers: { 'X-Google-API-Key': getKey('google')! },
+    }),
     onResponse: async (response) => {
       try {
+        const payload = await response.json();
         if (response.ok) {
-          const { title } = await response.json();
-          await updateThread(threadId, title);
+          await updateThread(threadId, payload.title);
         } else {
-          const { error } = await response.json();
-          toast.error(error || 'Failed to generate a title for this thread');
+          toast.error(
+            payload.error || 'Failed to generate a title for this thread'
+          );
         }
       } catch (error) {
         console.error(error);

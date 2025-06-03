@@ -8,7 +8,10 @@ import { UIMessage } from 'ai';
 export default function Thread() {
   const { id } = useParams();
 
-  // TODO - If threadId is not found, redirect to /chat or show a 404 page
+  if (!id) {
+    // TODO: Redirect to /chat or show 404 page
+    return <div>Thread not found</div>;
+  }
 
   const messages = useLiveQuery(() => getMessages(id), [id]);
 
@@ -22,10 +25,5 @@ export default function Thread() {
     }));
   };
 
-  return (
-    <Chat
-      threadId={id as string}
-      initialMessages={convertToUIMessages(messages)}
-    />
-  );
+  return <Chat threadId={id} initialMessages={convertToUIMessages(messages)} />;
 }
