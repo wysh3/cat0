@@ -1,7 +1,7 @@
 'use client';
 
 import { ChevronDown, Check, ArrowUpIcon } from 'lucide-react';
-import { memo, useState, useCallback } from 'react';
+import { memo, useCallback, useMemo } from 'react';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -20,37 +20,26 @@ import {
   createThread,
   updateThread,
 } from '@/frontend/dexie/queries';
+import { useAPIKeysStore } from '@/frontend/stores/APIKeysStore';
+import { useModelStore } from '@/frontend/stores/ModelStore';
+import { AI_MODELS } from '@/lib/models';
+import KeyPrompt from '@/components/KeyPrompt';
 import { UIMessage } from 'ai';
 import { v4 as uuidv4 } from 'uuid';
 import { StopIcon } from './ui/icons';
 import { toast } from 'sonner';
 
-// Constants
-const AI_MODELS = [
-  'Deepseek R1 0528',
-  'Gemini 2.5 Pro',
-  'Gemini 2.5 Flash',
-  'o3',
-  'GPT-4o-mini',
-  'GPT-4o',
-  'Mistral Large',
-] as const;
-
-type AIModel = (typeof AI_MODELS)[number];
-
 interface ChatInputProps {
   threadId: string;
-  status: UseChatHelpers['status'];
   input: UseChatHelpers['input'];
+  status: UseChatHelpers['status'];
   setInput: UseChatHelpers['setInput'];
-  setMessages: UseChatHelpers['setMessages'];
   append: UseChatHelpers['append'];
   stop: UseChatHelpers['stop'];
 }
 
 interface StopButtonProps {
   stop: UseChatHelpers['stop'];
-  setMessages: UseChatHelpers['setMessages'];
 }
 
 interface SendButtonProps {
@@ -67,24 +56,34 @@ const createUserMessage = (text: string): UIMessage => ({
 
 function PureChatInput({
   threadId,
-  status,
   input,
+  status,
   setInput,
-  setMessages,
   append,
   stop,
 }: ChatInputProps) {
+  const hasRequiredKeys = useAPIKeysStore((state) => state.hasRequiredKeys());
+  const getKey = useAPIKeysStore((state) => state.getKey);
+  const { selectedModel, setModel } = useModelStore();
+
   const { textareaRef, adjustHeight } = useAutoResizeTextarea({
     minHeight: 72,
     maxHeight: 200,
   });
-  const [selectedModel, setSelectedModel] = useState<AIModel>('Mistral Large');
 
   const navigate = useNavigate();
   const { id } = useParams();
 
+  const isDisabled = useMemo(
+    () => !input.trim() || status !== 'ready',
+    [input, status]
+  );
+
   const { complete } = useCompletion({
     api: '/api/completion',
+    headers: {
+      'X-Google-API-Key': getKey('google') || '',
+    },
     onResponse: async (response) => {
       try {
         if (response.ok) {
@@ -92,23 +91,24 @@ function PureChatInput({
           await updateThread(threadId, title);
         } else {
           const { error } = await response.json();
-          toast.error(error || 'Failed to update thread title');
+          toast.error(error || 'Failed to generate a title for this thread');
         }
       } catch (error) {
-        console.error('Thread title update error:', error);
-        toast.error('Failed to update thread title');
+        console.error(error);
+        // TODO - Handle Dexie Error
       }
     },
   });
 
   const handleNewThreadSubmission = useCallback(
-    async (userMessage: UIMessage, inputValue: string) => {
+    async (userMessage: UIMessage) => {
       await createThread(threadId);
       navigate(`/chat/${threadId}`);
 
       await Promise.all([
-        complete(inputValue),
-        createMessage(threadId, userMessage),
+        // Todo - What if the user message is not created? some error occured
+        await createMessage(threadId, userMessage),
+        await complete(userMessage.content),
       ]);
     },
     [threadId, navigate, complete]
@@ -121,46 +121,55 @@ function PureChatInput({
     [threadId]
   );
 
-  const handleSubmit = async () => {
-    if (status !== 'ready' || !input.trim()) {
-      return;
-    }
+  const handleSubmit = useCallback(async () => {
+    const currentInput = textareaRef.current?.value || input;
 
-    const value = input.trim();
-    const userMessage = createUserMessage(value);
+    if (!currentInput.trim() || status !== 'ready') return;
+
+    const userMessage = createUserMessage(currentInput.trim());
 
     try {
-      append(userMessage);
       setInput('');
       adjustHeight(true);
 
+      append(userMessage);
+
       if (!id) {
-        await handleNewThreadSubmission(userMessage, value);
+        await handleNewThreadSubmission(userMessage);
       } else {
         await handleExistingThreadSubmission(userMessage);
       }
     } catch (error) {
-      console.error('Failed to submit message:', error);
-      toast.error('Failed to send message. Please try again.');
+      console.error(error);
+      // TODO - Handle Dexie Error Either Thread Creation Failed or User Message Failed
     }
-  };
+  }, [
+    input,
+    status,
+    setInput,
+    adjustHeight,
+    append,
+    id,
+    handleNewThreadSubmission,
+    handleExistingThreadSubmission,
+    textareaRef,
+  ]);
+
+  if (!hasRequiredKeys) {
+    return <KeyPrompt />;
+  }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey && input.trim()) {
+    if (e.key === 'Enter' && !e.shiftKey && e.currentTarget.value.trim()) {
       e.preventDefault();
       handleSubmit();
     }
   };
 
-  const handleInputChange = useCallback(
-    (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-      setInput(e.target.value);
-      adjustHeight();
-    },
-    [setInput, adjustHeight]
-  );
-
-  const isDisabled = !input.trim() || status !== 'ready';
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setInput(e.target.value);
+    adjustHeight();
+  };
 
   return (
     <div className="fixed bottom-0 w-full max-w-3xl">
@@ -217,7 +226,7 @@ function PureChatInput({
                       {AI_MODELS.map((model) => (
                         <DropdownMenuItem
                           key={model}
-                          onSelect={() => setSelectedModel(model)}
+                          onSelect={() => setModel(model)}
                           className="flex items-center justify-between gap-2"
                         >
                           <span>{model}</span>
@@ -234,7 +243,7 @@ function PureChatInput({
                 </div>
 
                 {status === 'submitted' || status === 'streaming' ? (
-                  <StopButton stop={stop} setMessages={setMessages} />
+                  <StopButton stop={stop} />
                 ) : (
                   <SendButton onSubmit={handleSubmit} disabled={isDisabled} />
                 )}
@@ -255,11 +264,10 @@ const ChatInput = memo(PureChatInput, (prevProps, nextProps) => {
   );
 });
 
-function PureStopButton({ stop, setMessages }: StopButtonProps) {
-  const handleClick = useCallback(() => {
+function PureStopButton({ stop }: StopButtonProps) {
+  const handleClick = () => {
     stop();
-    setMessages((messages) => messages);
-  }, [stop, setMessages]);
+  };
 
   return (
     <Button
@@ -278,7 +286,10 @@ const StopButton = memo(PureStopButton);
 const PureSendButton = ({ onSubmit, disabled }: SendButtonProps) => {
   return (
     <Button
-      onClick={onSubmit}
+      onClick={(event) => {
+        event.preventDefault();
+        onSubmit();
+      }}
       variant="outline"
       size="icon"
       disabled={disabled}

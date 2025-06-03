@@ -1,8 +1,9 @@
 import { BrowserRouter, Route, Routes } from 'react-router';
 import ChatLayout from './ChatLayout';
-import Home from './Home';
-import Index from './Index';
-import Thread from './Thread';
+import Home from './routes/Home';
+import Index from './routes/Index';
+import Thread from './routes/Thread';
+import Settings from './routes/Settings';
 
 export default function App() {
   return (
@@ -13,6 +14,7 @@ export default function App() {
           <Route index element={<Home />} />
           <Route path=":id" element={<Thread />} />
         </Route>
+        <Route path="settings" element={<Settings />} />
         <Route path="*" element={<p> Not found </p>} />
       </Routes>
     </BrowserRouter>

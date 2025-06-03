@@ -4,29 +4,34 @@ import ChatInput from './ChatInput';
 import { UIMessage } from 'ai';
 import { v4 as uuidv4 } from 'uuid';
 import { createMessage } from '@/frontend/dexie/queries';
+import { useAPIKeysStore } from '@/frontend/stores/APIKeysStore';
+import { useModelStore } from '@/frontend/stores/ModelStore';
 
-export default function Chat({
-  threadId,
-  initialMessages,
-}: {
+interface ChatProps {
   threadId: string;
   initialMessages: UIMessage[] | undefined;
-}) {
+}
+
+export default function Chat({ threadId, initialMessages }: ChatProps) {
+  const { getKey } = useAPIKeysStore();
+  const selectedModel = useModelStore((state) => state.selectedModel);
+  const modelConfig = useModelStore((state) => state.getModelConfig());
+
   const {
     messages,
-    setMessages,
     input,
-    setInput,
-    append,
     status,
-    reload,
+    setInput,
+    setMessages,
+    append,
     stop,
+    reload,
   } = useChat({
     id: threadId,
     initialMessages,
     experimental_throttle: 50,
     onFinish: async ({ parts }) => {
-      const aiResponse: UIMessage = {
+      const aiMessage: UIMessage = {
         id: uuidv4(),
         parts: parts as UIMessage['parts'],
         role: 'assistant',
@@ -34,12 +39,20 @@ export default function Chat({
       };
 
       try {
-        await createMessage(threadId, aiResponse);
+        await createMessage(threadId, aiMessage);
       } catch (error) {
-        console.error('Failed to persist AI response:', error);
+        console.error(error);
+        // TODO - Handle Dexie Related Errors here
       }
     },
+    headers: {
+      [modelConfig.headerKey]: getKey(modelConfig.provider) || '',
+    },
+    body: {
+      model: selectedModel,
+    },
   });
+
   return (
     <main className="flex flex-col w-full max-w-3xl pt-10 pb-44 mx-auto">
       <Messages
@@ -53,7 +66,6 @@ export default function Chat({
         append={append}
         threadId={threadId}
         setInput={setInput}
-        setMessages={setMessages}
         input={input}
         status={status}
         stop={stop}

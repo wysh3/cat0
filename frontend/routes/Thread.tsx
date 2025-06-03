@@ -1,8 +1,8 @@
 import Chat from '@/components/Chat';
 import { useParams } from 'react-router';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { getMessages } from './dexie/queries';
-import { type DBMessage } from './dexie/db';
+import { getMessages } from '../dexie/queries';
+import { type DBMessage } from '../dexie/db';
 import { UIMessage } from 'ai';
 
 export default function Thread() {

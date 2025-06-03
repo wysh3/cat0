@@ -32,11 +32,11 @@ export default function ChatSidebar() {
       <div className="flex flex-col h-full p-2">
         <SidebarHeader className="flex justify-between items-center gap-4 relative">
           <SidebarTrigger className="absolute right-1 top-2.5" />
-          <h1 className="text-2xl font-bold">Satori</h1>
+          <h1 className="text-2xl font-bold font-serif">Satori</h1>
           <Link
             to="/chat"
             className={buttonVariants({
-              variant: 'outline',
+              variant: 'secondary',
               className: 'w-full',
             })}
           >
@@ -52,9 +52,9 @@ export default function ChatSidebar() {
                     <SidebarMenuItem key={thread.id}>
                       <NavLink
                         to={`/chat/${thread.id}`}
-                        className={({ isActive }) =>
-                          cn('flex items-center w-full overflow-hidden')
-                        }
+                        className={cn(
+                          'flex items-center w-full overflow-hidden'
+                        )}
                         onClick={(e) => handleThreadLinkClick(thread.id, e)}
                       >
                         {({ isActive }) => (
@@ -76,7 +76,10 @@ export default function ChatSidebar() {
         </SidebarContent>
         <SidebarFooter>
           {/* TODO: Add Settings Page */}
-          <Link to="/settings" className={buttonVariants()}>
+          <Link
+            to="/settings"
+            className={buttonVariants({ variant: 'outline' })}
+          >
             Settings
           </Link>
         </SidebarFooter>

@@ -17,12 +17,7 @@ const components: Components = {
   pre: ({ children }) => <>{children}</>,
 };
 
-function CodeBlock({
-  children,
-  className,
-  node,
-  ...props
-}: CodeComponentProps) {
+function CodeBlock({ children, className, ...props }: CodeComponentProps) {
   const match = /language-(\w+)/.exec(className || '');
 
   if (match) {

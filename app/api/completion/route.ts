@@ -1,27 +1,25 @@
 import { createGoogleGenerativeAI } from '@ai-sdk/google';
-import { createMistral } from '@ai-sdk/mistral';
-import { createOpenAI } from '@ai-sdk/openai';
-import { createOpenRouter } from '@openrouter/ai-sdk-provider';
 import { generateText } from 'ai';
+import { headers } from 'next/headers';
 import { NextResponse } from 'next/server';
 
-const openrouter = createOpenRouter({
-  apiKey: process.env.OPENROUTER_API_KEY,
-});
-
-const mistral = createMistral({
-  apiKey: process.env.MISTRAL_API_KEY,
-});
-
-const openai = createOpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
-const google = createGoogleGenerativeAI({
-  apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY,
-});
-
 export async function POST(req: Request) {
+  const headersList = await headers();
+  const googleApiKey = headersList.get('X-Google-API-Key');
+
+  if (!googleApiKey) {
+    return NextResponse.json(
+      {
+        error: 'Google API key is required to enable chat title generation.',
+      },
+      { status: 400 }
+    );
+  }
+
+  const google = createGoogleGenerativeAI({
+    apiKey: googleApiKey,
+  });
+
   const { prompt } = await req.json();
 
   try {

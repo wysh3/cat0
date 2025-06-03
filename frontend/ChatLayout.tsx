@@ -10,7 +10,7 @@ export default function ChatLayout() {
   return (
     <SidebarProvider>
       <ChatSidebar />
-      <main className="flex-1">
+      <main className="flex-1 relative">
         <ChatSidebarTrigger />
         <Outlet />
       </main>
@@ -21,7 +21,7 @@ export default function ChatLayout() {
 const ChatSidebarTrigger = () => {
   const { state } = useSidebar();
   if (state === 'collapsed') {
-    return <SidebarTrigger />;
+    return <SidebarTrigger className="absolute left-4 top-4" />;
   }
   return null;
 };
