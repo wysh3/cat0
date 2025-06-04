@@ -7,15 +7,16 @@
 - [ ] Dexie - Add Sync across multiple tabs in Dexie
 - [ ] Dexie - Add Error Handling
 
-- [ ] Sidebar - Fix Title Truncation, Scrollbar, Add Delete Thread Button
-
-- [ ] Implement Theme Toggle with View Transitions
-
+- [ ] Sidebar - Fix Title Truncation
+- [ ] Sidebar - Add Delete Thread Button
+- [ ] Sidebar - Scrollbar
 - [ ] Messages - MessageEditor UI Fix
+- [ ] Implement Theme Toggle with View Transitions
 
 - [ ] Chat - Add Attachments (Image, PDF)
 - [ ] Chat - Add History Search
 - [ ] Chat - Add History Card View
+- [ ] Chat - Add Scroll to Bottom Button
 
 ## Additional Features
 

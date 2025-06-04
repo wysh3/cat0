@@ -25,5 +25,7 @@ export default function Thread() {
     }));
   };
 
-  return <Chat threadId={id} initialMessages={convertToUIMessages(messages)} />;
+  return (
+    <Chat threadId={id} initialMessages={convertToUIMessages(messages) || []} />
+  );
 }

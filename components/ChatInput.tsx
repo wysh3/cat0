@@ -1,5 +1,3 @@
-'use client';
-
 import { ChevronDown, Check, ArrowUpIcon } from 'lucide-react';
 import { memo, useCallback, useMemo } from 'react';
 import { Textarea } from '@/components/ui/textarea';
@@ -62,7 +60,7 @@ function PureChatInput({
   append,
   stop,
 }: ChatInputProps) {
-  const hasRequiredKeys = useAPIKeysStore((state) => state.hasRequiredKeys());
+  const canChat = useAPIKeysStore((state) => state.hasRequiredKeys());
   const getKey = useAPIKeysStore((state) => state.getKey);
   const { selectedModel, setModel } = useModelStore();
 
@@ -101,67 +99,32 @@ function PureChatInput({
     },
   });
 
-  const handleNewThreadSubmission = useCallback(
-    async (userMessage: UIMessage) => {
-      await createThread(threadId);
-      navigate(`/chat/${threadId}`);
-
-      await Promise.all([
-        // Todo - What if the user message is not created? some error occured
-        await createMessage(threadId, userMessage),
-        await complete(userMessage.content),
-      ]);
-    },
-    [threadId, navigate, complete]
-  );
-
-  const handleExistingThreadSubmission = useCallback(
-    async (userMessage: UIMessage) => {
-      await createMessage(threadId, userMessage);
-    },
-    [threadId]
-  );
-
   const handleSubmit = useCallback(async () => {
     const currentInput = textareaRef.current?.value || input;
 
     if (!currentInput.trim() || status !== 'ready') return;
 
+    if (!id) {
+      navigate(`/chat/${threadId}`);
+      await createThread(threadId);
+      complete(currentInput.trim());
+    }
+
     const userMessage = createUserMessage(currentInput.trim());
 
-    try {
-      setInput('');
-      adjustHeight(true);
+    await append(userMessage);
+    await createMessage(threadId, userMessage);
 
-      append(userMessage);
+    setInput('');
+    adjustHeight(true);
+  }, [input, status, setInput, adjustHeight, append, id, textareaRef]);
 
-      if (!id) {
-        await handleNewThreadSubmission(userMessage);
-      } else {
-        await handleExistingThreadSubmission(userMessage);
-      }
-    } catch (error) {
-      console.error(error);
-      // TODO - Handle Dexie Error Either Thread Creation Failed or User Message Failed
-    }
-  }, [
-    input,
-    status,
-    setInput,
-    adjustHeight,
-    append,
-    id,
-    handleNewThreadSubmission,
-    handleExistingThreadSubmission,
-    textareaRef,
-  ]);
-
-  if (!hasRequiredKeys) {
+  if (!canChat) {
     return <KeyPrompt />;
   }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey && e.currentTarget.value.trim()) {
+    if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSubmit();
     }
@@ -287,10 +250,7 @@ const StopButton = memo(PureStopButton);
 const PureSendButton = ({ onSubmit, disabled }: SendButtonProps) => {
   return (
     <Button
-      onClick={(event) => {
-        event.preventDefault();
-        onSubmit();
-      }}
+      onClick={onSubmit}
       variant="outline"
       size="icon"
       disabled={disabled}

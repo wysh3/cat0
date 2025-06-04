@@ -9,7 +9,7 @@ import { useModelStore } from '@/frontend/stores/ModelStore';
 
 interface ChatProps {
   threadId: string;
-  initialMessages: UIMessage[] | undefined;
+  initialMessages: UIMessage[];
 }
 
 export default function Chat({ threadId, initialMessages }: ChatProps) {

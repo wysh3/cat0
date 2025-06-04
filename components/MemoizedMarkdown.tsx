@@ -1,4 +1,3 @@
-'use client';
 import { memo, useMemo, useState } from 'react';
 import ReactMarkdown, { type Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -77,13 +76,8 @@ function Codebar({ lang, codeString }: { lang: string; codeString: string }) {
 }
 
 function parseMarkdownIntoBlocks(markdown: string): string[] {
-  try {
-    const tokens = marked.lexer(markdown);
-    return tokens.map((token) => token.raw);
-  } catch (error) {
-    console.error('Error parsing markdown:', error);
-    return [markdown];
-  }
+  const tokens = marked.lexer(markdown);
+  return tokens.map((token) => token.raw);
 }
 
 function PureMarkdownRendererBlock({ content }: { content: string }) {
