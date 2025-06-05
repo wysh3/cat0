@@ -4,7 +4,7 @@ import ChatInput from './ChatInput';
 import { UIMessage } from 'ai';
 import { v4 as uuidv4 } from 'uuid';
 import { createMessage } from '@/frontend/dexie/queries';
-import { useAPIKeysStore } from '@/frontend/stores/APIKeysStore';
+import { useAPIKeyStore } from '@/frontend/stores/APIKeyStore';
 import { useModelStore } from '@/frontend/stores/ModelStore';
 
 interface ChatProps {
@@ -13,7 +13,7 @@ interface ChatProps {
 }
 
 export default function Chat({ threadId, initialMessages }: ChatProps) {
-  const { getKey } = useAPIKeysStore();
+  const { getKey } = useAPIKeyStore();
   const selectedModel = useModelStore((state) => state.selectedModel);
   const modelConfig = useModelStore((state) => state.getModelConfig());
 

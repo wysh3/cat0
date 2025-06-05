@@ -1,12 +1,11 @@
 import { UIMessage } from 'ai';
 import { db } from './db';
 
-export const createThread = async (id: string) => {
-  const existingThread = await db.threads.get(id);
-  if (existingThread) {
-    return existingThread;
-  }
+export const getThreads = async () => {
+  return await db.threads.orderBy('updatedAt').reverse().toArray();
+};
 
+export const createThread = async (id: string) => {
   return await db.threads.add({
     id,
     title: 'New Chat',
@@ -22,16 +21,7 @@ export const updateThread = async (id: string, title: string) => {
   });
 };
 
-export const getThreads = async () => {
-  return await db.threads.orderBy('updatedAt').reverse().toArray();
-};
-
 export const deleteThread = async (id: string) => {
-  const thread = await db.threads.get(id);
-  if (!thread) {
-    throw new Error(`Thread with id ${id} not found`);
-  }
-
   return await db.transaction('rw', [db.threads, db.messages], async () => {
     await db.messages.where('threadId').equals(id).delete();
     return await db.threads.delete(id);
@@ -44,8 +34,7 @@ export const deleteAllThreads = async () => {
   return;
 };
 
-export const getMessages = async (threadId?: string) => {
-  if (!threadId) return [];
+export const getMessages = async (threadId: string) => {
   return await db.messages
     .orderBy('createdAt')
     .filter((message) => message.threadId === threadId)

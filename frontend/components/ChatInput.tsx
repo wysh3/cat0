@@ -1,14 +1,14 @@
 import { ChevronDown, Check, ArrowUpIcon } from 'lucide-react';
 import { memo, useCallback, useMemo } from 'react';
-import { Textarea } from '@/components/ui/textarea';
+import { Textarea } from '@/frontend/components/ui/textarea';
 import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/frontend/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+} from '@/frontend/components/ui/dropdown-menu';
 import useAutoResizeTextarea from '@/hooks/useAutoResizeTextArea';
 import { UseChatHelpers, useCompletion } from '@ai-sdk/react';
 import { useParams } from 'react-router';
@@ -18,10 +18,10 @@ import {
   createThread,
   updateThread,
 } from '@/frontend/dexie/queries';
-import { useAPIKeysStore } from '@/frontend/stores/APIKeysStore';
+import { useAPIKeyStore } from '@/frontend/stores/APIKeyStore';
 import { useModelStore } from '@/frontend/stores/ModelStore';
 import { AI_MODELS } from '@/lib/models';
-import KeyPrompt from '@/components/KeyPrompt';
+import KeyPrompt from '@/frontend/components/KeyPrompt';
 import { UIMessage } from 'ai';
 import { v4 as uuidv4 } from 'uuid';
 import { StopIcon } from './ui/icons';
@@ -61,8 +61,8 @@ function PureChatInput({
   append,
   stop,
 }: ChatInputProps) {
-  const canChat = useAPIKeysStore((state) => state.hasRequiredKeys());
-  const getKey = useAPIKeysStore((state) => state.getKey);
+  const canChat = useAPIKeyStore((state) => state.hasRequiredKeys());
+  const getKey = useAPIKeyStore((state) => state.getKey);
   const { selectedModel, setModel } = useModelStore();
 
   const { textareaRef, adjustHeight } = useAutoResizeTextarea({

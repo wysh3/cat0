@@ -3,18 +3,18 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Button } from '@/frontend/components/ui/button';
+import { Input } from '@/frontend/components/ui/input';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
+} from '@/frontend/components/ui/card';
 import { Key } from 'lucide-react';
 import { toast } from 'sonner';
-import { useAPIKeysStore } from '@/frontend/stores/APIKeysStore';
+import { useAPIKeyStore } from '@/frontend/stores/APIKeyStore';
 
 const formSchema = z.object({
   google: z.string().trim().min(1, {
@@ -46,7 +46,7 @@ export default function APIKeyForm() {
 }
 
 const Form = () => {
-  const { keys, setKeys } = useAPIKeysStore();
+  const { keys, setKeys } = useAPIKeyStore();
   const {
     register,
     handleSubmit,

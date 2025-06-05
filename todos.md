@@ -1,19 +1,20 @@
 ## TODOS
 
-- [ ] Sidebar - Reduce Settings, New Chat Re-renders
-- [ ] Dexie - Refactor to Class Based, Add Delete Thread, Change Sorting to Last Message At for Threads
-- [ ] Fix Shiki Syntax Highlighting Loading Issue
+- [x] Dexie - Add Delete Thread, Change Sorting to Last Message At for Threads
 - [ ] Dexie - Add Sync across multiple tabs in Dexie
 - [ ] Dexie - Add Error Handling
 
-- [ ] Sidebar - Fix Title Truncation
 - [ ] Sidebar - Add Delete Thread Button
 - [ ] Sidebar - Scrollbar
+- [ ] Sidebar - Reduce Settings, New Chat Re-renders
+- [ ] Sidebar - Fix Title Truncation
+
 - [ ] Messages - MessageEditor UI Fix
 - [ ] Implement Theme Toggle with View Transitions
+- [ ] Fix Shiki Syntax Highlighting Loading Issue
 
+- [ ] Chat - Add Chat History Search
 - [ ] Chat - Add Attachments (Image, PDF)
-- [ ] Chat - Add History Search
 - [ ] Chat - Add History Card View
 - [ ] Chat - Add Scroll to Bottom Button
 

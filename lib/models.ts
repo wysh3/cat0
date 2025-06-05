@@ -1,7 +1,8 @@
-import { Provider } from '@/frontend/stores/APIKeysStore';
+import { Provider } from '@/frontend/stores/APIKeyStore';
 
 export const AI_MODELS = [
   'Deepseek R1 0528',
+  'Deepseek V3',
   'Gemini 2.5 Pro',
   'Gemini 2.5 Flash',
   'GPT-4o',
@@ -18,7 +19,12 @@ export type ModelConfig = {
 
 export const MODEL_CONFIGS = {
   'Deepseek R1 0528': {
-    modelId: 'deepseek/deepseek-r1:free',
+    modelId: 'deepseek/deepseek-r1-0528:free',
+    provider: 'openrouter',
+    headerKey: 'X-OpenRouter-API-Key',
+  },
+  'Deepseek V3': {
+    modelId: 'deepseek/deepseek-chat-v3-0324:free',
     provider: 'openrouter',
     headerKey: 'X-OpenRouter-API-Key',
   },

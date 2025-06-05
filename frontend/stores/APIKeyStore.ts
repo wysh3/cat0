@@ -6,7 +6,7 @@ export type Provider = (typeof PROVIDERS)[number];
 
 type APIKeys = Record<Provider, string>;
 
-type APIKeysStore = {
+type APIKeyStore = {
   keys: APIKeys;
   setKeys: (newKeys: Partial<APIKeys>) => void;
   hasRequiredKeys: () => boolean;
@@ -14,7 +14,7 @@ type APIKeysStore = {
 };
 
 type StoreWithPersist = Mutate<
-  StoreApi<APIKeysStore>,
+  StoreApi<APIKeyStore>,
   [['zustand/persist', { keys: APIKeys }]]
 >;
 
@@ -32,7 +32,7 @@ export const withStorageDOMEvents = (store: StoreWithPersist) => {
   };
 };
 
-export const useAPIKeysStore = create<APIKeysStore>()(
+export const useAPIKeyStore = create<APIKeyStore>()(
   persist(
     (set, get) => ({
       keys: {
@@ -63,4 +63,4 @@ export const useAPIKeysStore = create<APIKeysStore>()(
   )
 );
 
-withStorageDOMEvents(useAPIKeysStore);
+withStorageDOMEvents(useAPIKeyStore);

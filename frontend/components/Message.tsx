@@ -1,5 +1,5 @@
 import { memo, useState } from 'react';
-import MarkdownRenderer from '@/components/MemoizedMarkdown';
+import MarkdownRenderer from '@/frontend/components/MemoizedMarkdown';
 import { cn } from '@/lib/utils';
 import { UIMessage } from 'ai';
 import equal from 'fast-deep-equal';

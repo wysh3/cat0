@@ -1,15 +1,15 @@
-import APIKeyManager from '@/components/APIKeyForm';
-import Chat from '@/components/Chat';
+import APIKeyManager from '@/frontend/components/APIKeyForm';
+import Chat from '@/frontend/components/Chat';
 import { v4 as uuidv4 } from 'uuid';
-import { useAPIKeysStore } from '../stores/APIKeysStore';
+import { useAPIKeyStore } from '../stores/APIKeyStore';
 import { useModelStore } from '../stores/ModelStore';
 
 export default function Home() {
-  const hasRequiredKeys = useAPIKeysStore((state) => state.hasRequiredKeys());
-  const isAPIKeysHydrated = useAPIKeysStore.persist?.hasHydrated();
+  const hasRequiredKeys = useAPIKeyStore((state) => state.hasRequiredKeys());
+
+  const isAPIKeysHydrated = useAPIKeyStore.persist?.hasHydrated();
   const isModelStoreHydrated = useModelStore.persist?.hasHydrated();
 
-  // Wait for both stores to hydrate
   if (!isAPIKeysHydrated || !isModelStoreHydrated) return null;
 
   if (!hasRequiredKeys)

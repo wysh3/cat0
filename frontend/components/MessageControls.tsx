@@ -5,7 +5,7 @@ import { Check, Copy, RefreshCcw, SquarePen } from 'lucide-react';
 import { UIMessage } from 'ai';
 import { UseChatHelpers } from '@ai-sdk/react';
 import { deleteTrailingMessages } from '@/frontend/dexie/queries';
-import { useAPIKeysStore } from '@/frontend/stores/APIKeysStore';
+import { useAPIKeyStore } from '@/frontend/stores/APIKeyStore';
 
 interface MessageControlsProps {
   threadId: string;
@@ -25,7 +25,7 @@ export default function MessageControls({
   reload,
 }: MessageControlsProps) {
   const [copied, setCopied] = useState(false);
-  const hasRequiredKeys = useAPIKeysStore((state) => state.hasRequiredKeys());
+  const hasRequiredKeys = useAPIKeyStore((state) => state.hasRequiredKeys());
 
   const handleCopy = () => {
     navigator.clipboard.writeText(content);

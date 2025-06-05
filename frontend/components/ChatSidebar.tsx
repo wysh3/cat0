@@ -9,23 +9,14 @@ import {
   SidebarMenuButton,
   SidebarFooter,
   SidebarTrigger,
-} from '@/components/ui/sidebar';
+} from '@/frontend/components/ui/sidebar';
 import { buttonVariants } from './ui/button';
 import { getThreads } from '@/frontend/dexie/queries';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { Link, NavLink, useParams } from 'react-router';
-import { cn } from '@/lib/utils';
+import { Link, NavLink } from 'react-router';
 
 export default function ChatSidebar() {
   const threads = useLiveQuery(() => getThreads());
-  const { id: currentThreadId } = useParams();
-
-  const handleThreadLinkClick = (threadId: string, e: React.MouseEvent) => {
-    if (currentThreadId === threadId) {
-      e.preventDefault();
-      return;
-    }
-  };
 
   return (
     <Sidebar>
@@ -50,20 +41,16 @@ export default function ChatSidebar() {
                 {threads?.map((thread) => {
                   return (
                     <SidebarMenuItem key={thread.id}>
-                      <NavLink
-                        to={`/chat/${thread.id}`}
-                        className={cn(
-                          'flex items-center w-full overflow-hidden'
-                        )}
-                        onClick={(e) => handleThreadLinkClick(thread.id, e)}
-                      >
+                      <NavLink to={`/chat/${thread.id}`}>
                         {({ isActive }) => (
                           <SidebarMenuButton
                             asChild
-                            className="h-9"
+                            className="relative group h-9 flex items-center overflow-hidden"
                             isActive={isActive}
                           >
-                            <span className="truncate">{thread.title}</span>
+                            <span className="truncate block">
+                              {thread.title}
+                            </span>
                           </SidebarMenuButton>
                         )}
                       </NavLink>
@@ -87,4 +74,3 @@ export default function ChatSidebar() {
     </Sidebar>
   );
 }
-// 278 x 36 side bar item
