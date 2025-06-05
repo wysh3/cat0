@@ -26,6 +26,7 @@ export default function Chat({ threadId, initialMessages }: ChatProps) {
     append,
     stop,
     reload,
+    error,
   } = useChat({
     id: threadId,
     initialMessages,
@@ -36,6 +37,7 @@ export default function Chat({ threadId, initialMessages }: ChatProps) {
         parts: parts as UIMessage['parts'],
         role: 'assistant',
         content: '',
+        createdAt: new Date(),
       };
 
       try {
@@ -53,6 +55,8 @@ export default function Chat({ threadId, initialMessages }: ChatProps) {
     },
   });
 
+  console.log('error', error?.message);
+
   return (
     <main className="flex flex-col w-full max-w-3xl pt-10 pb-44 mx-auto">
       <Messages
@@ -61,6 +65,7 @@ export default function Chat({ threadId, initialMessages }: ChatProps) {
         status={status}
         setMessages={setMessages}
         reload={reload}
+        error={error}
       />
       <ChatInput
         append={append}

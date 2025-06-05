@@ -1,6 +1,5 @@
 ## TODOS
 
-- [ ] Improve Markdown Parsing using Children Prop, Decrease Memoization and reduce re-renders.
 - [ ] Sidebar - Reduce Settings, New Chat Re-renders
 - [ ] Dexie - Refactor to Class Based, Add Delete Thread, Change Sorting to Last Message At for Threads
 - [ ] Fix Shiki Syntax Highlighting Loading Issue

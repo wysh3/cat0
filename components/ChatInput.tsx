@@ -50,6 +50,7 @@ const createUserMessage = (text: string): UIMessage => ({
   parts: [{ type: 'text', text }],
   role: 'user',
   content: text,
+  createdAt: new Date(),
 });
 
 function PureChatInput({
@@ -111,10 +112,9 @@ function PureChatInput({
     }
 
     const userMessage = createUserMessage(currentInput.trim());
-
-    await append(userMessage);
     await createMessage(threadId, userMessage);
 
+    append(userMessage);
     setInput('');
     adjustHeight(true);
   }, [input, status, setInput, adjustHeight, append, id, textareaRef]);

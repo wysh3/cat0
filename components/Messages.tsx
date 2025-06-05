@@ -4,6 +4,7 @@ import { UIMessage } from 'ai';
 import { UseChatHelpers } from '@ai-sdk/react';
 import equal from 'fast-deep-equal';
 import MessageLoading from './ui/MessageLoading';
+import Error from './Error';
 
 function PureMessages({
   threadId,
@@ -11,12 +12,14 @@ function PureMessages({
   status,
   setMessages,
   reload,
+  error,
 }: {
   threadId: string;
   messages: UIMessage[];
   setMessages: UseChatHelpers['setMessages'];
   reload: UseChatHelpers['reload'];
   status: UseChatHelpers['status'];
+  error: UseChatHelpers['error'];
 }) {
   return (
     <section className="flex flex-col space-y-12">
@@ -31,12 +34,14 @@ function PureMessages({
         />
       ))}
       {status === 'submitted' && <MessageLoading />}
+      {error && <Error message={error.message} />}
     </section>
   );
 }
 
 const Messages = memo(PureMessages, (prevProps, nextProps) => {
   if (prevProps.status !== nextProps.status) return false;
+  if (prevProps.error !== nextProps.error) return false;
   if (prevProps.messages.length !== nextProps.messages.length) return false;
   if (!equal(prevProps.messages, nextProps.messages)) return false;
   return true;

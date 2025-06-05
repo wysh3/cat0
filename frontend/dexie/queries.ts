@@ -56,9 +56,9 @@ export const createMessage = async (threadId: string, message: UIMessage) => {
   return await db.messages.add({
     id: message.id,
     threadId,
-    createdAt: new Date(),
     parts: message.parts,
     role: message.role,
+    createdAt: message.createdAt || new Date(),
   });
 };
 

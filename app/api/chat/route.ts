@@ -4,44 +4,18 @@ import { createOpenRouter } from '@openrouter/ai-sdk-provider';
 import { streamText, smoothStream } from 'ai';
 import { headers } from 'next/headers';
 import { getModelConfig, AIModel } from '@/lib/models';
+import { NextRequest } from 'next/server';
 
 export const maxDuration = 60;
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
     const { messages, model } = await req.json();
     const headersList = await headers();
 
-    if (!model) {
-      return new Response(JSON.stringify({ error: 'Model is required' }), {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' },
-      });
-    }
-
     const modelConfig = getModelConfig(model as AIModel);
-    if (!modelConfig) {
-      return new Response(JSON.stringify({ error: 'Invalid model selected' }), {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' },
-      });
-    }
 
-    const apiKey = headersList.get(modelConfig.headerKey);
-    if (!apiKey) {
-      return new Response(
-        JSON.stringify({
-          error: `${
-            modelConfig.provider.charAt(0).toUpperCase() +
-            modelConfig.provider.slice(1)
-          } API key is required for this model`,
-        }),
-        {
-          status: 400,
-          headers: { 'Content-Type': 'application/json' },
-        }
-      );
-    }
+    const apiKey = headersList.get(modelConfig.headerKey) as string;
 
     let aiModel;
     switch (modelConfig.provider) {
@@ -73,8 +47,8 @@ export async function POST(req: Request) {
     const result = streamText({
       model: aiModel,
       messages,
-      onError: ({ error }) => {
-        console.error('AI Model Error:', error);
+      onError: (error) => {
+        console.log('error', error);
       },
       system: `
       You are Satori, an ai assistant that can answer questions and help with tasks.
@@ -96,12 +70,13 @@ export async function POST(req: Request) {
       experimental_transform: [smoothStream({ chunking: 'word' })],
     });
 
-    return result.toDataStreamResponse({ sendReasoning: true });
-  } catch (error) {
-    console.error('API Route Error:', error);
-    return new Response(JSON.stringify({ error: 'Internal server error' }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
+    return result.toDataStreamResponse({
+      sendReasoning: true,
+      getErrorMessage: (error) => {
+        return (error as { message: string }).message;
+      },
     });
+  } catch (error) {
+    console.log('error', error);
   }
 }
