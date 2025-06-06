@@ -6,17 +6,20 @@ import {
   SidebarGroupContent,
   SidebarMenu,
   SidebarMenuItem,
-  SidebarMenuButton,
   SidebarFooter,
   SidebarTrigger,
 } from '@/frontend/components/ui/sidebar';
-import { buttonVariants } from './ui/button';
-import { getThreads } from '@/frontend/dexie/queries';
+import { Button, buttonVariants } from './ui/button';
+import { deleteThread, getThreads } from '@/frontend/dexie/queries';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { Link, NavLink } from 'react-router';
+import { Link, NavLink, useNavigate } from 'react-router';
+import { X } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import ThemeToggler from './ui/ThemeToggler';
 
 export default function ChatSidebar() {
-  const threads = useLiveQuery(() => getThreads());
+  const navigate = useNavigate();
+  const threads = useLiveQuery(() => getThreads(), []);
 
   return (
     <Sidebar>
@@ -27,32 +30,44 @@ export default function ChatSidebar() {
           <Link
             to="/chat"
             className={buttonVariants({
-              variant: 'secondary',
+              variant: 'default',
               className: 'w-full',
             })}
           >
             New Chat
           </Link>
         </SidebarHeader>
-        <SidebarContent>
+        <SidebarContent className="no-scrollbar">
           <SidebarGroup>
             <SidebarGroupContent>
               <SidebarMenu>
                 {threads?.map((thread) => {
                   return (
                     <SidebarMenuItem key={thread.id}>
-                      <NavLink to={`/chat/${thread.id}`}>
-                        {({ isActive }) => (
-                          <SidebarMenuButton
-                            asChild
-                            className="relative group h-9 flex items-center overflow-hidden"
-                            isActive={isActive}
-                          >
-                            <span className="truncate block">
-                              {thread.title}
-                            </span>
-                          </SidebarMenuButton>
-                        )}
+                      <NavLink
+                        to={`/chat/${thread.id}`}
+                        className={({ isActive }) =>
+                          cn(
+                            'group/thread h-9 flex items-center px-2 py-1 rounded-[8px] overflow-hidden w-full hover:bg-secondary',
+                            isActive && 'bg-secondary'
+                          )
+                        }
+                        draggable={false}
+                      >
+                        <span className="truncate block">{thread.title}</span>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="hidden group-hover/thread:flex ml-auto h-7 w-7"
+                          onClick={async (event) => {
+                            event.preventDefault();
+                            event.stopPropagation();
+                            await deleteThread(thread.id);
+                            navigate(`/chat`);
+                          }}
+                        >
+                          <X size={16} />
+                        </Button>
                       </NavLink>
                     </SidebarMenuItem>
                   );
@@ -62,7 +77,6 @@ export default function ChatSidebar() {
           </SidebarGroup>
         </SidebarContent>
         <SidebarFooter>
-          {/* TODO: Add Settings Page */}
           <Link
             to="/settings"
             className={buttonVariants({ variant: 'outline' })}

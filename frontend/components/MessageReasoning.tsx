@@ -15,7 +15,7 @@ export default function MessageReasoning({
     <div className="flex flex-col gap-2 pb-2 max-w-3xl w-full">
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="flex items-center gap-2 text-muted-foreground"
+        className="flex items-center gap-2 text-muted-foreground cursor-pointer"
       >
         {isExpanded ? (
           <span>
@@ -26,11 +26,11 @@ export default function MessageReasoning({
             <ChevronDownIcon className="w-4 h-4" />
           </span>
         )}
-        Reasoning
+        <span>Reasoning</span>
       </button>
       {isExpanded && (
-        <div className="p-4 rounded-md bg-muted text-xs">
-          <MemoizedMarkdown content={reasoning} id={id} />
+        <div className="p-4 rounded-md bg-secondary/10 text-xs border">
+          <MemoizedMarkdown content={reasoning} id={id} size="small" />
         </div>
       )}
     </div>

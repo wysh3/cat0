@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect } from 'react';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
+import { FieldError, useForm, UseFormRegister } from 'react-hook-form';
 
 import { Button } from '@/frontend/components/ui/button';
 import { Input } from '@/frontend/components/ui/input';
@@ -15,6 +15,7 @@ import {
 import { Key } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAPIKeyStore } from '@/frontend/stores/APIKeyStore';
+import { Badge } from './ui/badge';
 
 const formSchema = z.object({
   google: z.string().trim().min(1, {
@@ -47,6 +48,7 @@ export default function APIKeyForm() {
 
 const Form = () => {
   const { keys, setKeys } = useAPIKeyStore();
+
   const {
     register,
     handleSubmit,
@@ -71,90 +73,36 @@ const Form = () => {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      <div className="flex flex-col gap-2">
-        <label
-          htmlFor="google"
-          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex gap-1"
-        >
-          <span>Google API Key</span>
-          <span className="text-muted-foreground">
-            (Required for Thread Title Generation)
-          </span>
-        </label>
-        <a
-          href="https://aistudio.google.com/apikey"
-          target="_blank"
-          className="text-sm text-blue-500 inline w-fit"
-        >
-          Create Google API Key
-        </a>
-        <Input
-          id="google"
-          placeholder="AIza..."
-          {...register('google')}
-          className={errors.google ? 'border-red-500' : ''}
-        />
+      <ApiKeyField
+        id="google"
+        label="Google API Key"
+        models={['Gemini 2.5 Flash', 'Gemini 2.5 Pro']}
+        linkUrl="https://aistudio.google.com/apikey"
+        placeholder="AIza..."
+        register={register}
+        error={errors.google}
+        required
+      />
 
-        {errors.google && (
-          <p className="text-[0.8rem] font-medium text-red-500">
-            {errors.google.message}
-          </p>
-        )}
-      </div>
+      <ApiKeyField
+        id="openrouter"
+        label="OpenRouter API Key"
+        models={['DeepSeek R1 0538', 'DeepSeek-V3']}
+        linkUrl="https://openrouter.ai/settings/keys"
+        placeholder="sk-or-..."
+        register={register}
+        error={errors.openrouter}
+      />
 
-      <div className="flex flex-col gap-2">
-        <label
-          htmlFor="openrouter"
-          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-        >
-          OpenRouter API Key
-        </label>
-        <a
-          href="https://openrouter.ai/settings/keys"
-          target="_blank"
-          className="text-sm text-blue-500 inline w-fit"
-        >
-          Create OpenRouter API Key
-        </a>
-        <Input
-          id="openrouter"
-          placeholder="sk-or-..."
-          {...register('openrouter')}
-          className={errors.openrouter ? 'border-red-500' : ''}
-        />
-        {errors.openrouter && (
-          <p className="text-[0.8rem] font-medium text-red-500">
-            {errors.openrouter.message}
-          </p>
-        )}
-      </div>
-
-      <div className="flex flex-col gap-2">
-        <label
-          htmlFor="openai"
-          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-        >
-          OpenAI API Key
-        </label>
-        <a
-          href="https://platform.openai.com/settings/organization/api-keys"
-          target="_blank"
-          className="text-sm text-blue-500 inline w-fit"
-        >
-          Create OpenAI API Key
-        </a>
-        <Input
-          id="openai"
-          placeholder="sk-..."
-          {...register('openai')}
-          className={errors.openai ? 'border-red-500' : ''}
-        />
-        {errors.openai && (
-          <p className="text-[0.8rem] font-medium text-red-500">
-            {errors.openai.message}
-          </p>
-        )}
-      </div>
+      <ApiKeyField
+        id="openai"
+        label="OpenAI API Key"
+        models={['GPT-4o', 'GPT-4.1-mini']}
+        linkUrl="https://platform.openai.com/settings/organization/api-keys"
+        placeholder="sk-..."
+        register={register}
+        error={errors.openai}
+      />
 
       <Button type="submit" className="w-full" disabled={!isDirty}>
         Save API Keys
@@ -162,3 +110,59 @@ const Form = () => {
     </form>
   );
 };
+
+interface ApiKeyFieldProps {
+  id: string;
+  label: string;
+  linkUrl: string;
+  models: string[];
+  placeholder: string;
+  error?: FieldError | undefined;
+  required?: boolean;
+  register: UseFormRegister<FormValues>;
+}
+
+const ApiKeyField = ({
+  id,
+  label,
+  linkUrl,
+  placeholder,
+  models,
+  error,
+  required,
+  register,
+}: ApiKeyFieldProps) => (
+  <div className="flex flex-col gap-2">
+    <label
+      htmlFor={id}
+      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex gap-1"
+    >
+      <span>{label}</span>
+      {required && <span className="text-muted-foreground"> (Required)</span>}
+    </label>
+    <div className="flex gap-2">
+      {models.map((model) => (
+        <Badge key={model}>{model}</Badge>
+      ))}
+    </div>
+
+    <Input
+      id={id}
+      placeholder={placeholder}
+      {...register(id as keyof FormValues)}
+      className={error ? 'border-red-500' : ''}
+    />
+
+    <a
+      href={linkUrl}
+      target="_blank"
+      className="text-sm text-blue-500 inline w-fit"
+    >
+      Create {label.split(' ')[0]} API Key
+    </a>
+
+    {error && (
+      <p className="text-[0.8rem] font-medium text-red-500">{error.message}</p>
+    )}
+  </div>
+);

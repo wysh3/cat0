@@ -56,8 +56,6 @@ export default function MessageEditor({
       setMode('view');
     } catch (error) {
       console.error('Failed to save message:', error);
-      // Optionally show user-friendly error message
-      // Consider reverting any partial state changes
     }
   };
 
@@ -67,8 +65,10 @@ export default function MessageEditor({
         value={draftContent}
         onChange={(e) => setDraftContent(e.target.value)}
       />
-      <Button onClick={handleSave}>Save</Button>
-      <Button onClick={() => setMode('view')}>Cancel</Button>
+      <div className="flex gap-2 mt-2">
+        <Button onClick={handleSave}>Save</Button>
+        <Button onClick={() => setMode('view')}>Cancel</Button>
+      </div>
     </div>
   );
 }

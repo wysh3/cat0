@@ -49,7 +49,7 @@ function PureMessage({
           return message.role === 'user' ? (
             <div
               key={key}
-              className="relative group px-4 py-3 rounded-xl bg-secondary/30 border border-secondary/30 max-w-[80%]"
+              className="relative group px-4 py-3 rounded-xl bg-secondary border border-secondary-foreground/2 max-w-[80%]"
             >
               {mode === 'edit' && (
                 <MessageEditor
@@ -63,14 +63,16 @@ function PureMessage({
               )}
               {mode === 'view' && <p>{part.text}</p>}
 
-              <MessageControls
-                threadId={threadId}
-                content={part.text}
-                message={message}
-                setMode={setMode}
-                setMessages={setMessages}
-                reload={reload}
-              />
+              {mode === 'view' && (
+                <MessageControls
+                  threadId={threadId}
+                  content={part.text}
+                  message={message}
+                  setMode={setMode}
+                  setMessages={setMessages}
+                  reload={reload}
+                />
+              )}
             </div>
           ) : (
             <div key={key} className="group flex flex-col gap-2 w-full">

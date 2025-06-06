@@ -1,13 +1,11 @@
 ## TODOS
 
-- [x] Dexie - Add Delete Thread, Change Sorting to Last Message At for Threads
+- [ ] Dexie - Change Sorting to Last Message At for Threads
 - [ ] Dexie - Add Sync across multiple tabs in Dexie
 - [ ] Dexie - Add Error Handling
 
 - [ ] Sidebar - Add Delete Thread Button
-- [ ] Sidebar - Scrollbar
 - [ ] Sidebar - Reduce Settings, New Chat Re-renders
-- [ ] Sidebar - Fix Title Truncation
 
 - [ ] Messages - MessageEditor UI Fix
 - [ ] Implement Theme Toggle with View Transitions

@@ -1,5 +1,5 @@
 import Chat from '@/frontend/components/Chat';
-import { useNavigate, useParams } from 'react-router';
+import { useParams } from 'react-router';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { getMessages } from '../dexie/queries';
 import { type DBMessage } from '../dexie/db';

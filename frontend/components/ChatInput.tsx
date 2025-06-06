@@ -20,7 +20,7 @@ import {
 } from '@/frontend/dexie/queries';
 import { useAPIKeyStore } from '@/frontend/stores/APIKeyStore';
 import { useModelStore } from '@/frontend/stores/ModelStore';
-import { AI_MODELS } from '@/lib/models';
+import { AI_MODELS, AIModel, getModelConfig } from '@/lib/models';
 import KeyPrompt from '@/frontend/components/KeyPrompt';
 import { UIMessage } from 'ai';
 import { v4 as uuidv4 } from 'uuid';
@@ -137,20 +137,20 @@ function PureChatInput({
 
   return (
     <div className="fixed bottom-0 w-full max-w-3xl">
-      <div className="bg-muted/50 rounded-t-[20px] p-2 pb-0 w-full backdrop-blur-lg">
+      <div className="bg-secondary rounded-t-[20px] p-2 pb-0 w-full">
         <div className="relative">
-          <div className="bg-muted rounded-t-[12px] flex flex-col">
-            <div className="overflow-y-auto max-h-[300px]">
+          <div className="flex flex-col">
+            <div className="bg-secondary overflow-y-auto max-h-[300px]">
               <Textarea
                 id="chat-input"
                 value={input}
                 placeholder="What can I do for you?"
                 className={cn(
-                  'w-full rounded-t-[12px] px-4 py-3 bg-accent border-none text-foreground',
+                  'w-full px-4 py-3 border-none shadow-none dark:bg-transparent',
                   'placeholder:text-muted-foreground resize-none',
                   'focus-visible:ring-0 focus-visible:ring-offset-0',
-                  'scrollbar-thin scrollbar-track-transparent scrollbar-thumb-muted',
-                  'hover:scrollbar-thumb-muted-foreground/50 scrollbar-thumb-rounded-full',
+                  'scrollbar-thin scrollbar-track-transparent scrollbar-thumb-muted-foreground/30',
+                  'scrollbar-thumb-rounded-full',
                   'min-h-[72px]'
                 )}
                 ref={textareaRef}
@@ -164,47 +164,12 @@ function PureChatInput({
               </span>
             </div>
 
-            <div className="h-14 bg-muted flex items-center">
-              <div className="absolute left-3 right-3 bottom-3 flex items-center justify-between w-[calc(100%-24px)]">
-                <div className="flex items-center gap-2">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        className="flex items-center gap-1 h-8 pl-2 pr-2 text-xs rounded-md text-foreground hover:bg-accent focus-visible:ring-1 focus-visible:ring-offset-0 focus-visible:ring-blue-500"
-                        aria-label={`Selected model: ${selectedModel}`}
-                      >
-                        <div className="flex items-center gap-1">
-                          {selectedModel}
-                          <ChevronDown className="w-3 h-3 opacity-50" />
-                        </div>
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent
-                      className={cn(
-                        'min-w-[10rem]',
-                        'border-border',
-                        'bg-popover'
-                      )}
-                    >
-                      {AI_MODELS.map((model) => (
-                        <DropdownMenuItem
-                          key={model}
-                          onSelect={() => setModel(model)}
-                          className="flex items-center justify-between gap-2"
-                        >
-                          <span>{model}</span>
-                          {selectedModel === model && (
-                            <Check
-                              className="w-4 h-4 text-blue-500"
-                              aria-label="Selected"
-                            />
-                          )}
-                        </DropdownMenuItem>
-                      ))}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
+            <div className="h-14 flex items-center px-2">
+              <div className="flex items-center justify-between w-full">
+                <ChatModelDropdown
+                  selectedModel={selectedModel}
+                  setModel={setModel}
+                />
 
                 {status === 'submitted' || status === 'streaming' ? (
                   <StopButton stop={stop} />
@@ -228,19 +193,81 @@ const ChatInput = memo(PureChatInput, (prevProps, nextProps) => {
   );
 });
 
-function PureStopButton({ stop }: StopButtonProps) {
-  const handleClick = () => {
-    stop();
-  };
+const PureChatModelDropdown = ({
+  selectedModel,
+  setModel,
+}: {
+  selectedModel: AIModel;
+  setModel: (model: AIModel) => void;
+}) => {
+  const getKey = useAPIKeyStore((state) => state.getKey);
+
+  const isModelEnabled = useCallback(
+    (model: AIModel) => {
+      const modelConfig = getModelConfig(model);
+      const apiKey = getKey(modelConfig.provider);
+      return !!apiKey;
+    },
+    [getKey]
+  );
 
   return (
+    <div className="flex items-center gap-2">
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="ghost"
+            className="flex items-center gap-1 h-8 pl-2 pr-2 text-xs rounded-md text-foreground hover:bg-primary/10 focus-visible:ring-1 focus-visible:ring-offset-0 focus-visible:ring-blue-500"
+            aria-label={`Selected model: ${selectedModel}`}
+          >
+            <div className="flex items-center gap-1">
+              {selectedModel}
+              <ChevronDown className="w-3 h-3 opacity-50" />
+            </div>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent
+          className={cn('min-w-[10rem]', 'border-border', 'bg-popover')}
+        >
+          {AI_MODELS.map((model) => {
+            const isEnabled = isModelEnabled(model);
+            return (
+              <DropdownMenuItem
+                key={model}
+                onSelect={() => isEnabled && setModel(model)}
+                disabled={!isEnabled}
+                className={cn(
+                  'flex items-center justify-between gap-2',
+                  'cursor-pointer'
+                )}
+              >
+                <span>{model}</span>
+                {selectedModel === model && (
+                  <Check
+                    className="w-4 h-4 text-blue-500"
+                    aria-label="Selected"
+                  />
+                )}
+              </DropdownMenuItem>
+            );
+          })}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
+  );
+};
+
+const ChatModelDropdown = memo(PureChatModelDropdown);
+
+function PureStopButton({ stop }: StopButtonProps) {
+  return (
     <Button
-      variant="secondary"
+      variant="outline"
       size="icon"
-      onClick={handleClick}
+      onClick={stop}
       aria-label="Stop generating response"
     >
-      <StopIcon size={24} />
+      <StopIcon size={20} />
     </Button>
   );
 }
@@ -251,7 +278,7 @@ const PureSendButton = ({ onSubmit, disabled }: SendButtonProps) => {
   return (
     <Button
       onClick={onSubmit}
-      variant="outline"
+      variant="default"
       size="icon"
       disabled={disabled}
       aria-label="Send message"
