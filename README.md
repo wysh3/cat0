@@ -27,4 +27,4 @@ If you encounter any issues or have questions, please [open an issue](https://gi
 
 ## 💰 Buy me a coffee
 
-- coff.ee/senbo
+- [coff.ee/senbo](https://coff.ee/senbo)
