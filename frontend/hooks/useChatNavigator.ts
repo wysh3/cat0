@@ -1,6 +1,6 @@
 import { useCallback, useRef, useState } from 'react';
 
-export const useMessageNavigation = () => {
+export const useChatNavigator = () => {
   const [isNavigatorVisible, setIsNavigatorVisible] = useState(false);
   const messageRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
@@ -21,8 +21,8 @@ export const useMessageNavigation = () => {
 
   return {
     isNavigatorVisible,
+    handleToggleNavigator,
     registerRef,
     scrollToMessage,
-    handleToggleNavigator,
   };
 };

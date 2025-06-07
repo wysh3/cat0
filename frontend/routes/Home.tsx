@@ -3,8 +3,15 @@ import Chat from '@/frontend/components/Chat';
 import { v4 as uuidv4 } from 'uuid';
 import { useAPIKeyStore } from '../stores/APIKeyStore';
 import { useModelStore } from '../stores/ModelStore';
+import ReactGA from 'react-ga4';
+import { useEffect } from 'react';
 
 export default function Home() {
+  useEffect(() => {
+    ReactGA.initialize('G-HF901M1EWX');
+    ReactGA.send({ hitType: 'pageview', page: window.location.pathname });
+  }, []);
+
   const hasRequiredKeys = useAPIKeyStore((state) => state.hasRequiredKeys());
 
   const isAPIKeysHydrated = useAPIKeyStore.persist?.hasHydrated();

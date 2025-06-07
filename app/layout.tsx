@@ -16,8 +16,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Satori',
-  description: 'fastest ai chat app',
+  title: 'Chat0',
+  description: 'Fastest AI Chat App',
 };
 
 export default function RootLayout({

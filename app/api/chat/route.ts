@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
         console.log('error', error);
       },
       system: `
-      You are Satori, an ai assistant that can answer questions and help with tasks.
+      You are Chat0, an ai assistant that can answer questions and help with tasks.
       Be helpful and provide relevant information
       Be respectful and polite in all interactions.
       Be engaging and maintain a conversational tone.
@@ -65,7 +65,7 @@ export async function POST(req: NextRequest) {
       - Display: 
       $$\\frac{d}{dx}\\sin(x) = \\cos(x)$$
       `,
-      experimental_transform: [smoothStream({ chunking: 'word' })],
+      experimental_transform: [smoothStream({ chunking: 'line' })],
       abortSignal: req.signal,
     });
 

@@ -1,16 +1,17 @@
 import { useChat } from '@ai-sdk/react';
 import Messages from './Messages';
 import ChatInput from './ChatInput';
-import MessageNavigator from './MessageNavigator';
+import ChatNavigator from './ChatNavigator';
 import { UIMessage } from 'ai';
 import { v4 as uuidv4 } from 'uuid';
 import { createMessage } from '@/frontend/dexie/queries';
 import { useAPIKeyStore } from '@/frontend/stores/APIKeyStore';
 import { useModelStore } from '@/frontend/stores/ModelStore';
-import { MessageSquareMore } from 'lucide-react';
-import { Button } from './ui/button';
 import ThemeToggler from './ui/ThemeToggler';
-import { useMessageNavigation } from '@/frontend/hooks/useMessageNavigation';
+import { SidebarTrigger, useSidebar } from './ui/sidebar';
+import { Button } from './ui/button';
+import { MessageSquareMore } from 'lucide-react';
+import { useChatNavigator } from '@/frontend/hooks/useChatNavigator';
 
 interface ChatProps {
   threadId: string;
@@ -24,10 +25,10 @@ export default function Chat({ threadId, initialMessages }: ChatProps) {
 
   const {
     isNavigatorVisible,
+    handleToggleNavigator,
     registerRef,
     scrollToMessage,
-    handleToggleNavigator,
-  } = useMessageNavigation();
+  } = useChatNavigator();
 
   const {
     messages,
@@ -68,6 +69,7 @@ export default function Chat({ threadId, initialMessages }: ChatProps) {
 
   return (
     <div className="relative w-full">
+      <ChatSidebarTrigger />
       <main className="flex flex-col w-full max-w-3xl pt-10 pb-44 mx-auto">
         <Messages
           threadId={threadId}
@@ -104,11 +106,16 @@ export default function Chat({ threadId, initialMessages }: ChatProps) {
       </Button>
 
       {isNavigatorVisible && (
-        <MessageNavigator
-          threadId={threadId}
-          scrollToMessage={scrollToMessage}
-        />
+        <ChatNavigator threadId={threadId} scrollToMessage={scrollToMessage} />
       )}
     </div>
   );
 }
+
+const ChatSidebarTrigger = () => {
+  const { state } = useSidebar();
+  if (state === 'collapsed') {
+    return <SidebarTrigger className="fixed left-4 top-4 z-100" />;
+  }
+  return null;
+};

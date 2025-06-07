@@ -7,7 +7,7 @@ interface MessageNavigatorProps {
   scrollToMessage: (id: string) => void;
 }
 
-function PureMessageNavigator({
+function PureChatNavigator({
   threadId,
   scrollToMessage,
 }: MessageNavigatorProps) {
@@ -38,6 +38,6 @@ function PureMessageNavigator({
   );
 }
 
-export default memo(PureMessageNavigator, (prevProps, nextProps) => {
+export default memo(PureChatNavigator, (prevProps, nextProps) => {
   return prevProps.threadId === nextProps.threadId;
 });

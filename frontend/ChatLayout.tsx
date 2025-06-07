@@ -1,28 +1,14 @@
-import {
-  SidebarProvider,
-  SidebarTrigger,
-  useSidebar,
-} from '@/frontend/components/ui/sidebar';
+import { SidebarProvider } from '@/frontend/components/ui/sidebar';
 import ChatSidebar from '@/frontend/components/ChatSidebar';
 import { Outlet } from 'react-router';
-import ThemeToggler from './components/ui/ThemeToggler';
 
 export default function ChatLayout() {
   return (
     <SidebarProvider>
       <ChatSidebar />
-      <main className="flex-1 relative">
-        <ChatSidebarTrigger />
+      <div className="flex-1 relative">
         <Outlet />
-      </main>
+      </div>
     </SidebarProvider>
   );
 }
-
-const ChatSidebarTrigger = () => {
-  const { state } = useSidebar();
-  if (state === 'collapsed') {
-    return <SidebarTrigger className="fixed left-4 top-4" />;
-  }
-  return null;
-};

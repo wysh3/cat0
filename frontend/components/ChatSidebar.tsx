@@ -77,7 +77,9 @@ function PureHeader() {
   return (
     <SidebarHeader className="flex justify-between items-center gap-4 relative">
       <SidebarTrigger className="absolute right-1 top-2.5" />
-      <h1 className="text-2xl font-bold font-serif">Satori</h1>
+      <h1 className="text-2xl font-bold">
+        Chat<span className="">0</span>
+      </h1>
       <Link
         to="/chat"
         className={buttonVariants({
