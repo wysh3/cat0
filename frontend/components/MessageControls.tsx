@@ -14,6 +14,7 @@ interface MessageControlsProps {
   content: string;
   setMode?: Dispatch<SetStateAction<'view' | 'edit'>>;
   reload: UseChatHelpers['reload'];
+  stop: UseChatHelpers['stop'];
 }
 
 export default function MessageControls({
@@ -23,6 +24,7 @@ export default function MessageControls({
   content,
   setMode,
   reload,
+  stop,
 }: MessageControlsProps) {
   const [copied, setCopied] = useState(false);
   const hasRequiredKeys = useAPIKeyStore((state) => state.hasRequiredKeys());
@@ -36,6 +38,9 @@ export default function MessageControls({
   };
 
   const handleRegenerate = async () => {
+    // stop the current request
+    stop();
+
     if (message.role === 'user') {
       await deleteTrailingMessages(threadId, message.createdAt as Date, false);
 
@@ -62,7 +67,9 @@ export default function MessageControls({
       });
     }
 
-    reload();
+    setTimeout(() => {
+      reload();
+    }, 0);
   };
 
   return (

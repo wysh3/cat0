@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { memo, useState } from 'react';
 import MemoizedMarkdown from './MemoizedMarkdown';
 import { ChevronDownIcon, ChevronUpIcon } from 'lucide-react';
 
-export default function MessageReasoning({
+function PureMessageReasoning({
   reasoning,
   id,
 }: {
@@ -36,3 +36,7 @@ export default function MessageReasoning({
     </div>
   );
 }
+
+export default memo(PureMessageReasoning, (prev, next) => {
+  return prev.reasoning === next.reasoning && prev.id === next.id;
+});

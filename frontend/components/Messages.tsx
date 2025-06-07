@@ -13,6 +13,8 @@ function PureMessages({
   setMessages,
   reload,
   error,
+  stop,
+  registerRef,
 }: {
   threadId: string;
   messages: UIMessage[];
@@ -20,6 +22,8 @@ function PureMessages({
   reload: UseChatHelpers['reload'];
   status: UseChatHelpers['status'];
   error: UseChatHelpers['error'];
+  stop: UseChatHelpers['stop'];
+  registerRef: (id: string, ref: HTMLDivElement | null) => void;
 }) {
   return (
     <section className="flex flex-col space-y-12">
@@ -31,6 +35,8 @@ function PureMessages({
           isStreaming={status === 'streaming' && messages.length - 1 === index}
           setMessages={setMessages}
           reload={reload}
+          registerRef={registerRef}
+          stop={stop}
         />
       ))}
       {status === 'submitted' && <MessageLoading />}

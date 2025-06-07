@@ -13,7 +13,6 @@ export default function ChatLayout() {
       <ChatSidebar />
       <main className="flex-1 relative">
         <ChatSidebarTrigger />
-        <ThemeToggler />
         <Outlet />
       </main>
     </SidebarProvider>

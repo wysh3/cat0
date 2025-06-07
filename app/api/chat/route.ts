@@ -66,6 +66,7 @@ export async function POST(req: NextRequest) {
       $$\\frac{d}{dx}\\sin(x) = \\cos(x)$$
       `,
       experimental_transform: [smoothStream({ chunking: 'word' })],
+      abortSignal: req.signal,
     });
 
     return result.toDataStreamResponse({

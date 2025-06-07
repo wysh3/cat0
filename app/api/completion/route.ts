@@ -20,7 +20,7 @@ export async function POST(req: Request) {
     apiKey: googleApiKey,
   });
 
-  const { prompt } = await req.json();
+  const { prompt, isTitle, messageId, threadId } = await req.json();
 
   try {
     const { text: title } = await generateText({
@@ -33,7 +33,7 @@ export async function POST(req: Request) {
       prompt,
     });
 
-    return NextResponse.json({ title });
+    return NextResponse.json({ title, isTitle, messageId, threadId });
   } catch (error) {
     console.error('Failed to generate title:', error);
     return NextResponse.json(

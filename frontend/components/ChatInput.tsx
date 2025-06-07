@@ -13,11 +13,7 @@ import useAutoResizeTextarea from '@/hooks/useAutoResizeTextArea';
 import { UseChatHelpers, useCompletion } from '@ai-sdk/react';
 import { useParams } from 'react-router';
 import { useNavigate } from 'react-router';
-import {
-  createMessage,
-  createThread,
-  updateThread,
-} from '@/frontend/dexie/queries';
+import { createMessage, createThread } from '@/frontend/dexie/queries';
 import { useAPIKeyStore } from '@/frontend/stores/APIKeyStore';
 import { useModelStore } from '@/frontend/stores/ModelStore';
 import { AI_MODELS, AIModel, getModelConfig } from '@/lib/models';
@@ -26,6 +22,7 @@ import { UIMessage } from 'ai';
 import { v4 as uuidv4 } from 'uuid';
 import { StopIcon } from './ui/icons';
 import { toast } from 'sonner';
+import { useMessageSummary } from '../hooks/useMessageSummary';
 
 interface ChatInputProps {
   threadId: string;
@@ -45,8 +42,8 @@ interface SendButtonProps {
   disabled: boolean;
 }
 
-const createUserMessage = (text: string): UIMessage => ({
-  id: uuidv4(),
+const createUserMessage = (id: string, text: string): UIMessage => ({
+  id,
   parts: [{ type: 'text', text }],
   role: 'user',
   content: text,
@@ -62,8 +59,6 @@ function PureChatInput({
   stop,
 }: ChatInputProps) {
   const canChat = useAPIKeyStore((state) => state.hasRequiredKeys());
-  const getKey = useAPIKeyStore((state) => state.getKey);
-  const { selectedModel, setModel } = useModelStore();
 
   const { textareaRef, adjustHeight } = useAutoResizeTextarea({
     minHeight: 72,
@@ -74,50 +69,51 @@ function PureChatInput({
   const { id } = useParams();
 
   const isDisabled = useMemo(
-    () => !input.trim() || status !== 'ready',
+    () => !input.trim() || status === 'streaming' || status === 'submitted',
     [input, status]
   );
 
-  const { complete } = useCompletion({
-    api: '/api/completion',
-    ...(getKey('google') && {
-      headers: { 'X-Google-API-Key': getKey('google')! },
-    }),
-    onResponse: async (response) => {
-      try {
-        const payload = await response.json();
-        if (response.ok) {
-          await updateThread(threadId, payload.title);
-        } else {
-          toast.error(
-            payload.error || 'Failed to generate a title for this thread'
-          );
-        }
-      } catch (error) {
-        console.error(error);
-        // TODO - Handle Dexie Error
-      }
-    },
-  });
+  const { complete } = useMessageSummary();
 
   const handleSubmit = useCallback(async () => {
     const currentInput = textareaRef.current?.value || input;
 
-    if (!currentInput.trim() || status !== 'ready') return;
+    if (
+      !currentInput.trim() ||
+      status === 'streaming' ||
+      status === 'submitted'
+    )
+      return;
+
+    const messageId = uuidv4();
 
     if (!id) {
       navigate(`/chat/${threadId}`);
       await createThread(threadId);
-      complete(currentInput.trim());
+      complete(currentInput.trim(), {
+        body: { threadId, messageId, isTitle: true },
+      });
+    } else {
+      complete(currentInput.trim(), { body: { messageId, threadId } });
     }
 
-    const userMessage = createUserMessage(currentInput.trim());
+    const userMessage = createUserMessage(messageId, currentInput.trim());
     await createMessage(threadId, userMessage);
 
     append(userMessage);
     setInput('');
     adjustHeight(true);
-  }, [input, status, setInput, adjustHeight, append, id, textareaRef]);
+  }, [
+    input,
+    status,
+    setInput,
+    adjustHeight,
+    append,
+    id,
+    textareaRef,
+    threadId,
+    complete,
+  ]);
 
   if (!canChat) {
     return <KeyPrompt />;
@@ -166,10 +162,7 @@ function PureChatInput({
 
             <div className="h-14 flex items-center px-2">
               <div className="flex items-center justify-between w-full">
-                <ChatModelDropdown
-                  selectedModel={selectedModel}
-                  setModel={setModel}
-                />
+                <ChatModelDropdown />
 
                 {status === 'submitted' || status === 'streaming' ? (
                   <StopButton stop={stop} />
@@ -186,21 +179,14 @@ function PureChatInput({
 }
 
 const ChatInput = memo(PureChatInput, (prevProps, nextProps) => {
-  return (
-    prevProps.status === nextProps.status &&
-    prevProps.input === nextProps.input &&
-    prevProps.threadId === nextProps.threadId
-  );
+  if (prevProps.input !== nextProps.input) return false;
+  if (prevProps.status !== nextProps.status) return false;
+  return true;
 });
 
-const PureChatModelDropdown = ({
-  selectedModel,
-  setModel,
-}: {
-  selectedModel: AIModel;
-  setModel: (model: AIModel) => void;
-}) => {
+const PureChatModelDropdown = () => {
   const getKey = useAPIKeyStore((state) => state.getKey);
+  const { selectedModel, setModel } = useModelStore();
 
   const isModelEnabled = useCallback(
     (model: AIModel) => {
