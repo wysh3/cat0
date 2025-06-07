@@ -26,6 +26,7 @@ export default function Chat({ threadId, initialMessages }: ChatProps) {
   const {
     isNavigatorVisible,
     handleToggleNavigator,
+    closeNavigator,
     registerRef,
     scrollToMessage,
   } = useChatNavigator();
@@ -70,7 +71,9 @@ export default function Chat({ threadId, initialMessages }: ChatProps) {
   return (
     <div className="relative w-full">
       <ChatSidebarTrigger />
-      <main className="flex flex-col w-full max-w-3xl pt-10 pb-44 mx-auto">
+      <main
+        className={`flex flex-col w-full max-w-3xl pt-10 pb-44 mx-auto transition-all duration-300 ease-in-out`}
+      >
         <Messages
           threadId={threadId}
           messages={messages}
@@ -105,9 +108,12 @@ export default function Chat({ threadId, initialMessages }: ChatProps) {
         <MessageSquareMore className="h-5 w-5" />
       </Button>
 
-      {isNavigatorVisible && (
-        <ChatNavigator threadId={threadId} scrollToMessage={scrollToMessage} />
-      )}
+      <ChatNavigator
+        threadId={threadId}
+        scrollToMessage={scrollToMessage}
+        isVisible={isNavigatorVisible}
+        onClose={closeNavigator}
+      />
     </div>
   );
 }

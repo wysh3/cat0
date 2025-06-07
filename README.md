@@ -28,7 +28,3 @@ If you encounter any issues or have questions, please [open an issue](https://gi
 ## 💰 Buy me a coffee
 
 - coff.ee/senbo
-
-- Solana - 2qwcnPzPkmaPYs57cqT4ahFr1ssCRcXYkDi6pbrhsaNC
-- Ethereum - 0xFd4F9E04ccFd1535BcEC91Ba6bA19Ba641d7B01e
-- Bitcoin - bc1pag0uxy0hnxckzvf6wn5x09vwyckf4wqzgm2g84ram0gd4n0fwxsq028s0x

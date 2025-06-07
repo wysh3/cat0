@@ -1,15 +1,21 @@
 import { useLiveQuery } from 'dexie-react-hooks';
 import { getMessageSummaries } from '@/frontend/dexie/queries';
 import { memo } from 'react';
+import { X } from 'lucide-react';
+import { Button } from './ui/button';
 
 interface MessageNavigatorProps {
   threadId: string;
   scrollToMessage: (id: string) => void;
+  isVisible: boolean;
+  onClose: () => void;
 }
 
 function PureChatNavigator({
   threadId,
   scrollToMessage,
+  isVisible,
+  onClose,
 }: MessageNavigatorProps) {
   const messageSummaries = useLiveQuery(
     () => getMessageSummaries(threadId),
@@ -17,27 +23,57 @@ function PureChatNavigator({
   );
 
   return (
-    <aside className="fixed right-8 top-20 w-80 z-10">
-      <div className="bg-background/95 backdrop-blur-sm border rounded-lg p-4">
-        <h3 className="text-sm text-muted-foreground mb-2 text-center">
-          Message Navigator
-        </h3>
-        <ul className="flex flex-col gap-2 prose prose-sm dark:prose-invert list-disc pl-5 w-full h-[calc(100vh-200px)] overflow-hidden overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-muted-foreground/30 scrollbar-thumb-rounded-full">
-          {messageSummaries?.map((summary) => (
-            <li
-              key={summary.id}
-              onClick={() => scrollToMessage(summary.messageId)}
-              className="cursor-pointer hover:text-foreground transition-colors"
+    <>
+      {isVisible && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={onClose}
+        />
+      )}
+
+      <aside
+        className={`fixed right-0 top-0 h-full w-80 bg-background border-l z-50 transform transition-transform duration-300 ease-in-out ${
+          isVisible ? 'translate-x-0' : 'translate-x-full'
+        }`}
+      >
+        <div className="flex flex-col h-full">
+          <div className="flex items-center justify-between p-4 border-b">
+            <h3 className="text-sm font-medium">Chat Navigator</h3>
+            <Button
+              onClick={onClose}
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+              aria-label="Close navigator"
             >
-              {summary.content}
-            </li>
-          ))}
-        </ul>
-      </div>
-    </aside>
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+
+          <div className="flex-1 overflow-hidden p-2">
+            <ul className="flex flex-col gap-2 p-4 prose prose-sm dark:prose-invert list-disc pl-5 h-full overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-muted-foreground/30 scrollbar-thumb-rounded-full">
+              {messageSummaries?.map((summary) => (
+                <li
+                  key={summary.id}
+                  onClick={() => {
+                    scrollToMessage(summary.messageId);
+                  }}
+                  className="cursor-pointer hover:text-foreground transition-colors"
+                >
+                  {summary.content.slice(0, 100)}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </aside>
+    </>
   );
 }
 
 export default memo(PureChatNavigator, (prevProps, nextProps) => {
-  return prevProps.threadId === nextProps.threadId;
+  return (
+    prevProps.threadId === nextProps.threadId &&
+    prevProps.isVisible === nextProps.isVisible
+  );
 });

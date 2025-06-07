@@ -19,9 +19,14 @@ export const useChatNavigator = () => {
     setIsNavigatorVisible((prev) => !prev);
   }, []);
 
+  const closeNavigator = useCallback(() => {
+    setIsNavigatorVisible(false);
+  }, []);
+
   return {
     isNavigatorVisible,
     handleToggleNavigator,
+    closeNavigator,
     registerRef,
     scrollToMessage,
   };
