@@ -10,7 +10,10 @@ export default function Settings() {
   return (
     <section className="flex w-full h-full">
       <Link
-        to={`/chat${chatId ? `/${chatId}` : ""}`}
+        to={{
+          pathname: "/chat",
+          search: chatId ? `/${chatId}` : ""
+        }}
         className={buttonVariants({
           variant: 'default',
           className: 'w-fit fixed top-10 left-40 z-10',
