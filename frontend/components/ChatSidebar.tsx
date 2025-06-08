@@ -103,7 +103,7 @@ const PureFooter = () => {
       <Link
         to={{
           pathname: "/settings",
-          search: chatId ? `?from=${chatId}` : "",
+          search: chatId ? `?from=${encodeURIComponent(chatId)}` : "",
         }}
         className={buttonVariants({ variant: "outline" })}
       >
