@@ -1,11 +1,11 @@
 import APIKeyForm from '@/frontend/components/APIKeyForm';
-import { Link } from 'react-router';
+import { Link, useSearchParams } from 'react-router';
 import { buttonVariants } from '../components/ui/button';
 import { ArrowLeftIcon } from 'lucide-react';
-import { useSearchParams } from 'next/navigation';
 
 export default function Settings() {
-  const chatId = useSearchParams().get("from")
+  const [ searchParams ] = useSearchParams()
+  const chatId = searchParams.get("from")
 
   return (
     <section className="flex w-full h-full">
