@@ -96,9 +96,17 @@ function PureHeader() {
 const Header = memo(PureHeader);
 
 const PureFooter = () => {
+  const { id: chatId } = useParams();
+
   return (
     <SidebarFooter>
-      <Link to="/settings" className={buttonVariants({ variant: 'outline' })}>
+      <Link
+        to={{
+          pathname: "/settings",
+          search: chatId ? `?from=${chatId}` : "",
+        }}
+        className={buttonVariants({ variant: "outline" })}
+      >
         Settings
       </Link>
     </SidebarFooter>

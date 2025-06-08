@@ -2,12 +2,15 @@ import APIKeyForm from '@/frontend/components/APIKeyForm';
 import { Link } from 'react-router';
 import { buttonVariants } from '../components/ui/button';
 import { ArrowLeftIcon } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
 
 export default function Settings() {
+  const chatId = useSearchParams().get("from")
+
   return (
     <section className="flex w-full h-full">
       <Link
-        to="/chat"
+        to={`/chat${chatId ? `/${chatId}` : ""}`}
         className={buttonVariants({
           variant: 'default',
           className: 'w-fit fixed top-10 left-40 z-10',
