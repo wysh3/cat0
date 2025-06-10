@@ -4,15 +4,14 @@ import { buttonVariants } from '../components/ui/button';
 import { ArrowLeftIcon } from 'lucide-react';
 
 export default function Settings() {
-  const [ searchParams ] = useSearchParams()
-  const chatId = searchParams.get("from")
+  const [searchParams] = useSearchParams();
+  const chatId = searchParams.get('from');
 
   return (
     <section className="flex w-full h-full">
       <Link
         to={{
-          pathname: "/chat",
-          search: chatId ? `/${chatId}` : ""
+          pathname: `/chat${chatId ? `/${chatId}` : ''}`,
         }}
         className={buttonVariants({
           variant: 'default',
