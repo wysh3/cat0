@@ -3,8 +3,6 @@ import { generateText } from 'ai';
 import { headers } from 'next/headers';
 import { NextResponse } from 'next/server';
 
-export const runtime = 'edge';
-
 export async function POST(req: Request) {
   const headersList = await headers();
   const googleApiKey = headersList.get('X-Google-API-Key');
