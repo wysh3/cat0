@@ -31,7 +31,7 @@ export default function ChatSidebar() {
     };
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [navigate]);
+  }, []);
 
   return (
     <Sidebar>
