@@ -15,12 +15,23 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { Link, useNavigate, useParams } from 'react-router';
 import { X } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { memo } from 'react';
+import { memo, useEffect } from 'react';
 
 export default function ChatSidebar() {
   const { id } = useParams();
   const navigate = useNavigate();
   const threads = useLiveQuery(() => getThreads(), []);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key.toLowerCase() === 'o') {
+        e.preventDefault();
+        navigate('/chat');
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   return (
     <Sidebar>
