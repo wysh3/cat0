@@ -7,8 +7,7 @@ export const AI_MODELS = [
   'Gemini 2.5 Pro',
   'Gemini 2.5 Flash',
   'Gemini 2.5 Flash lite',
-  'GPT-4o',
-  'GPT-4.1-mini',
+  'GPT-4o'
 ] as const;
 
 export type AIModel = (typeof AI_MODELS)[number];
@@ -36,12 +35,12 @@ export const MODEL_CONFIGS = {
     headerKey: 'X-OpenRouter-API-Key',
   },
   'Gemini 2.5 Pro': {
-    modelId: 'gemini-2.5-pro-preview-05-06',
+    modelId: 'gemini-2.5-pro',
     provider: 'google',
     headerKey: 'X-Google-API-Key',
   },
   'Gemini 2.5 Flash': {
-    modelId: 'gemini-2.5-flash-preview-04-17',
+    modelId: 'gemini-2.5-flash',
     provider: 'google',
     headerKey: 'X-Google-API-Key',
   },
@@ -54,12 +53,7 @@ export const MODEL_CONFIGS = {
     modelId: 'gpt-4o',
     provider: 'openai',
     headerKey: 'X-OpenAI-API-Key',
-  },
-  'GPT-4.1-mini': {
-    modelId: 'gpt-4.1-mini',
-    provider: 'openai',
-    headerKey: 'X-OpenAI-API-Key',
-  },
+  }
 } as const satisfies Record<AIModel, ModelConfig>;
 
 export const getModelConfig = (modelName: AIModel): ModelConfig => {
