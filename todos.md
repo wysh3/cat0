@@ -37,6 +37,25 @@
 **Next Task**: Add proper loading states across the app  
 **Status**: Ready to start
 
+### Recently Completed - Message Summary Model Fix ✅
+**What was implemented:**
+- Updated /api/completion route to dynamically handle all model providers (Google, OpenAI, OpenRouter)
+- Modified useMessageSummary hook to use current selected model instead of hardcoded Google
+- Updated MessageEditor component to use new dynamic summary generation
+- Added filtering for reasoning model <think></think> tokens in summaries
+- Added proper error handling with user-friendly toast notifications and proper TypeScript types
+- Fixed all components to pass current model when generating summaries
+- Improved summary generation prompt with better examples and clearer instructions
+- Reduced title length limit from 80 to 60 characters for better UI fit
+
+**Issues Fixed:**
+- Summary generation now uses the same model as the current chat
+- No longer fails when user doesn't have Google API key
+- Reasoning models (like Deepseek R1) have thinking tokens properly filtered from summaries
+- All model providers now supported for summary generation
+- Fixed TypeScript error with error payload handling
+- Better, more contextual chat titles generated
+
 ### Previous Task Completed - Dexie Error Handling ✅
 **What was implemented:**
 - Added comprehensive error handling wrapper functions in queries.ts

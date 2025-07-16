@@ -10,7 +10,7 @@ import {
   DropdownMenuTrigger,
 } from '@/frontend/components/ui/dropdown-menu';
 import useAutoResizeTextarea from '@/hooks/useAutoResizeTextArea';
-import { UseChatHelpers, useCompletion } from '@ai-sdk/react';
+import { UseChatHelpers } from '@ai-sdk/react';
 import { useParams } from 'react-router';
 import { useNavigate } from 'react-router';
 import { createMessage, createThread } from '@/frontend/dexie/queries';

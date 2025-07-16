@@ -3,15 +3,15 @@ import {
   deleteTrailingMessages,
   createMessageSummary,
 } from '@/frontend/dexie/queries';
-import { UseChatHelpers, useCompletion } from '@ai-sdk/react';
+import { UseChatHelpers } from '@ai-sdk/react';
 import { useState } from 'react';
 import { UIMessage } from 'ai';
 import { Dispatch, SetStateAction } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { Textarea } from './ui/textarea';
 import { Button } from './ui/button';
-import { useAPIKeyStore } from '@/frontend/stores/APIKeyStore';
 import { toast } from 'sonner';
+import { useMessageSummary } from '../hooks/useMessageSummary';
 
 export default function MessageEditor({
   threadId,
@@ -31,36 +31,7 @@ export default function MessageEditor({
   stop: UseChatHelpers['stop'];
 }) {
   const [draftContent, setDraftContent] = useState(content);
-  const getKey = useAPIKeyStore((state) => state.getKey);
-
-  const { complete } = useCompletion({
-    api: '/api/completion',
-    ...(getKey('google') && {
-      headers: { 'X-Google-API-Key': getKey('google')! },
-    }),
-    onResponse: async (response) => {
-      try {
-        const payload = await response.json();
-
-        if (response.ok) {
-          const { title, messageId, threadId } = payload;
-          const result = await createMessageSummary(threadId, messageId, title);
-          
-          if (result.error) {
-            console.error('Failed to save message summary:', result.error);
-            toast.error(`Failed to save summary: ${result.error.message}`);
-          }
-        } else {
-          toast.error(
-            payload.error || 'Failed to generate a summary for the message'
-          );
-        }
-      } catch (error) {
-        console.error(error);
-        toast.error('An unexpected error occurred while processing the summary');
-      }
-    },
-  });
+  const { complete } = useMessageSummary();
 
   const handleSave = async () => {
     try {
