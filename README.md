@@ -1,4 +1,4 @@
-# Chat0
+# Cat0
 
 Blazingly-Fast, Open-source, and Free AI Chat App.
 
@@ -23,12 +23,12 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## 💻 Running Locally
 
-To run Chat0 locally, you'll need to follow these steps:
+To run Cat0 locally, you'll need to follow these steps:
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/senbo1/chat0.git
-   cd chat0
+   git clone https://github.com/wysh3/cat0.git
+   cd cat0
    ```
 
 2. **Install dependencies:**
@@ -47,8 +47,8 @@ To run Chat0 locally, you'll need to follow these steps:
 
 ## 🐛 Issues & Support
 
-If you encounter any issues or have questions, please [open an issue](https://github.com/senbo1/chat0/issues) on GitHub.
+If you encounter any issues or have questions, please [open an issue](https://github.com/wysh3/cat0/issues) on GitHub.
 
-## 💰 Buy me a coffee
+## 💰 Support
 
-- [coff.ee/senbo](https://coff.ee/senbo)
+If you find this project helpful, consider starring the repository!
