@@ -17,10 +17,16 @@ function PureChatNavigator({
   isVisible,
   onClose,
 }: MessageNavigatorProps) {
-  const messageSummaries = useLiveQuery(
-    () => getMessageSummaries(threadId),
-    [threadId]
-  );
+  const messageSummariesQuery = useLiveQuery(async () => {
+    const result = await getMessageSummaries(threadId);
+    if (result.error) {
+      console.error('Failed to load message summaries:', result.error);
+      return [];
+    }
+    return result.data || [];
+  }, [threadId]);
+  
+  const messageSummaries = messageSummariesQuery;
 
   return (
     <>

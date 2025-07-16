@@ -12,6 +12,7 @@ import { SidebarTrigger, useSidebar } from './ui/sidebar';
 import { Button } from './ui/button';
 import { MessageSquareMore } from 'lucide-react';
 import { useChatNavigator } from '@/frontend/hooks/useChatNavigator';
+import { toast } from 'sonner';
 
 interface ChatProps {
   threadId: string;
@@ -54,10 +55,10 @@ export default function Chat({ threadId, initialMessages }: ChatProps) {
         createdAt: new Date(),
       };
 
-      try {
-        await createMessage(threadId, aiMessage);
-      } catch (error) {
-        console.error(error);
+      const result = await createMessage(threadId, aiMessage);
+      if (result.error) {
+        console.error('Failed to save AI message:', result.error);
+        toast.error(`Failed to save response: ${result.error.message}`);
       }
     },
     headers: {

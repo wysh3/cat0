@@ -87,22 +87,38 @@ function PureChatInput({
 
     const messageId = uuidv4();
 
-    if (!id) {
-      navigate(`/chat/${threadId}`);
-      await createThread(threadId);
-      complete(currentInput.trim(), {
-        body: { threadId, messageId, isTitle: true },
-      });
-    } else {
-      complete(currentInput.trim(), { body: { messageId, threadId } });
+    try {
+      if (!id) {
+        navigate(`/chat/${threadId}`);
+        
+        const threadResult = await createThread(threadId);
+        if (threadResult.error) {
+          toast.error(`Failed to create chat: ${threadResult.error.message}`);
+          return;
+        }
+        
+        complete(currentInput.trim(), {
+          body: { threadId, messageId, isTitle: true },
+        });
+      } else {
+        complete(currentInput.trim(), { body: { messageId, threadId } });
+      }
+
+      const userMessage = createUserMessage(messageId, currentInput.trim());
+      const messageResult = await createMessage(threadId, userMessage);
+      
+      if (messageResult.error) {
+        toast.error(`Failed to save message: ${messageResult.error.message}`);
+        return;
+      }
+
+      append(userMessage);
+      setInput('');
+      adjustHeight(true);
+    } catch (error) {
+      console.error('Error in handleSubmit:', error);
+      toast.error('An unexpected error occurred while sending your message');
     }
-
-    const userMessage = createUserMessage(messageId, currentInput.trim());
-    await createMessage(threadId, userMessage);
-
-    append(userMessage);
-    setInput('');
-    adjustHeight(true);
   }, [
     input,
     status,

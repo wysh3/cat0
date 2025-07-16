@@ -44,7 +44,12 @@ export default function MessageEditor({
 
         if (response.ok) {
           const { title, messageId, threadId } = payload;
-          await createMessageSummary(threadId, messageId, title);
+          const result = await createMessageSummary(threadId, messageId, title);
+          
+          if (result.error) {
+            console.error('Failed to save message summary:', result.error);
+            toast.error(`Failed to save summary: ${result.error.message}`);
+          }
         } else {
           toast.error(
             payload.error || 'Failed to generate a summary for the message'
@@ -52,13 +57,19 @@ export default function MessageEditor({
         }
       } catch (error) {
         console.error(error);
+        toast.error('An unexpected error occurred while processing the summary');
       }
     },
   });
 
   const handleSave = async () => {
     try {
-      await deleteTrailingMessages(threadId, message.createdAt as Date);
+      // Delete trailing messages
+      const deleteResult = await deleteTrailingMessages(threadId, message.createdAt as Date);
+      if (deleteResult.error) {
+        toast.error(`Failed to delete old messages: ${deleteResult.error.message}`);
+        return;
+      }
 
       const updatedMessage = {
         ...message,
@@ -73,7 +84,12 @@ export default function MessageEditor({
         createdAt: new Date(),
       };
 
-      await createMessage(threadId, updatedMessage);
+      // Save the updated message
+      const createResult = await createMessage(threadId, updatedMessage);
+      if (createResult.error) {
+        toast.error(`Failed to save message: ${createResult.error.message}`);
+        return;
+      }
 
       setMessages((messages) => {
         const index = messages.findIndex((m) => m.id === message.id);
@@ -99,9 +115,11 @@ export default function MessageEditor({
       setTimeout(() => {
         reload();
       }, 0);
+      
+      toast.success('Message updated successfully');
     } catch (error) {
       console.error('Failed to save message:', error);
-      toast.error('Failed to save message');
+      toast.error('An unexpected error occurred while saving the message');
     }
   };
 

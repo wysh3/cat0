@@ -16,11 +16,21 @@ import { Link, useNavigate, useParams } from 'react-router';
 import { X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { memo, useEffect } from 'react';
+import { toast } from 'sonner';
 
 export default function ChatSidebar() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const threads = useLiveQuery(() => getThreads(), []);
+  const threadsQuery = useLiveQuery(async () => {
+    const result = await getThreads();
+    if (result.error) {
+      toast.error(`Failed to load chats: ${result.error.message}`);
+      return [];
+    }
+    return result.data || [];
+  }, []);
+  
+  const threads = threadsQuery;
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -64,7 +74,14 @@ export default function ChatSidebar() {
                           onClick={async (event) => {
                             event.preventDefault();
                             event.stopPropagation();
-                            await deleteThread(thread.id);
+                            
+                            const result = await deleteThread(thread.id);
+                            if (result.error) {
+                              toast.error(`Failed to delete chat: ${result.error.message}`);
+                              return;
+                            }
+                            
+                            toast.success('Chat deleted successfully');
                             navigate(`/chat`);
                           }}
                         >
