@@ -42,3 +42,10 @@ next-env.d.ts
 
 #cloudflare
 .open-next
+
+#aider
+.aider*
+
+#vscode
+.vscode
+pnpm-workspace.yaml
