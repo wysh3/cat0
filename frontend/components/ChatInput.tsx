@@ -1,5 +1,5 @@
 import { ChevronDown, Check, ArrowUpIcon } from 'lucide-react';
-import { memo, useCallback, useMemo } from 'react';
+import { memo, useCallback, useMemo, useState, useEffect } from 'react';
 import { Textarea } from '@/frontend/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import { Button } from '@/frontend/components/ui/button';
@@ -31,6 +31,7 @@ interface ChatInputProps {
   setInput: UseChatHelpers['setInput'];
   append: UseChatHelpers['append'];
   stop: UseChatHelpers['stop'];
+  onScrollToBottom?: () => void;
 }
 
 interface StopButtonProps {
@@ -57,6 +58,7 @@ function PureChatInput({
   setInput,
   append,
   stop,
+  onScrollToBottom,
 }: ChatInputProps) {
   const canChat = useAPIKeyStore((state) => state.hasRequiredKeys());
 
@@ -75,6 +77,45 @@ function PureChatInput({
 
   const { complete } = useMessageSummary();
 
+  // Scroll button state
+  const [isScrollButtonVisible, setIsScrollButtonVisible] = useState(false);
+  const [isScrollButtonPressed, setIsScrollButtonPressed] = useState(false);
+
+  useEffect(() => {
+    let ticking = false;
+
+    const handleScroll = () => {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          const scrollTop = window.scrollY || document.documentElement.scrollTop;
+          const scrollHeight = document.documentElement.scrollHeight;
+          const clientHeight = document.documentElement.clientHeight;
+
+          // Show button when user has scrolled up from the bottom (with more generous threshold)
+          const isNearBottom = scrollTop + clientHeight >= scrollHeight - 200;
+          setIsScrollButtonVisible(!isNearBottom && scrollHeight > clientHeight);
+
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll(); // Check initial state
+
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const handleScrollButtonClick = () => {
+    if (onScrollToBottom) {
+      setIsScrollButtonPressed(true);
+      onScrollToBottom();
+      // Reset pressed state after animation - snappier timing
+      setTimeout(() => setIsScrollButtonPressed(false), 100);
+    }
+  };
+
   const handleSubmit = useCallback(async () => {
     const currentInput = textareaRef.current?.value || input;
 
@@ -90,13 +131,13 @@ function PureChatInput({
     try {
       if (!id) {
         navigate(`/chat/${threadId}`);
-        
+
         const threadResult = await createThread(threadId);
         if (threadResult.error) {
           toast.error(`Failed to create chat: ${threadResult.error.message}`);
           return;
         }
-        
+
         complete(currentInput.trim(), {
           body: { threadId, messageId, isTitle: true },
         });
@@ -106,7 +147,7 @@ function PureChatInput({
 
       const userMessage = createUserMessage(messageId, currentInput.trim());
       const messageResult = await createMessage(threadId, userMessage);
-      
+
       if (messageResult.error) {
         toast.error(`Failed to save message: ${messageResult.error.message}`);
         return;
@@ -149,7 +190,46 @@ function PureChatInput({
 
   return (
     <div className="fixed bottom-0 w-full max-w-3xl">
-      <div className="bg-secondary rounded-t-[20px] p-2 pb-0 w-full">
+      {/* Scroll to bottom button - positioned above the chat input */}
+      <Button
+        onClick={handleScrollButtonClick}
+        variant="outline"
+        size="icon"
+        className={cn(
+          // Position above chat input, right-aligned - moved down and more to the right, smaller size
+          'absolute -top-12 right-2 z-50 rounded-full size-8',
+          // Grok-inspired styling
+          'bg-background/95 backdrop-blur-md border border-border/60',
+          'shadow-lg shadow-black/10 dark:shadow-black/30',
+          // Snappy transitions
+          'transition-all duration-150 ease-out',
+          // Hover effects
+          'hover:bg-accent/80 hover:border-border hover:shadow-xl hover:shadow-black/15',
+          'hover:scale-110 hover:-translate-y-0.5',
+          'dark:hover:shadow-black/40',
+          // Focus states
+          'focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-offset-2',
+          'focus-visible:ring-offset-background',
+          // Active/pressed state
+          isScrollButtonPressed && 'scale-95 shadow-md',
+          // Visibility animation with smooth fade
+          isScrollButtonVisible
+            ? 'opacity-100 translate-y-0 pointer-events-auto scale-100'
+            : 'opacity-0 translate-y-2 pointer-events-none scale-95'
+        )}
+        aria-label="Scroll to bottom"
+        aria-hidden={!isScrollButtonVisible}
+      >
+        <ChevronDown
+          className={cn(
+            'h-4 w-4 transition-transform duration-100',
+            isScrollButtonPressed && 'scale-90',
+            'text-foreground/80'
+          )}
+        />
+      </Button>
+
+      <div className="bg-secondary rounded-t-[20px] p-2 pb-0 w-full relative">
         <div className="relative">
           <div className="flex flex-col">
             <div className="bg-secondary overflow-y-auto max-h-[300px]">

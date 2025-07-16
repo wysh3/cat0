@@ -69,6 +69,14 @@ export default function Chat({ threadId, initialMessages }: ChatProps) {
     },
   });
 
+  const handleScrollToBottom = () => {
+    // Always scroll to bottom of page with smooth behavior
+    window.scrollTo({
+      top: document.documentElement.scrollHeight,
+      behavior: 'smooth'
+    });
+  };
+
   return (
     <div className="relative w-full">
       <ChatSidebarTrigger />
@@ -92,6 +100,7 @@ export default function Chat({ threadId, initialMessages }: ChatProps) {
           append={append}
           setInput={setInput}
           stop={stop}
+          onScrollToBottom={handleScrollToBottom}
         />
       </main>
       <ThemeToggler />
