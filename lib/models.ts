@@ -3,8 +3,10 @@ import { Provider } from '@/frontend/stores/APIKeyStore';
 export const AI_MODELS = [
   'Deepseek R1 0528',
   'Deepseek V3',
+  'Kimi K2',
   'Gemini 2.5 Pro',
   'Gemini 2.5 Flash',
+  'Gemini 2.5 Flash lite',
   'GPT-4o',
   'GPT-4.1-mini',
 ] as const;
@@ -28,6 +30,11 @@ export const MODEL_CONFIGS = {
     provider: 'openrouter',
     headerKey: 'X-OpenRouter-API-Key',
   },
+  'Kimi K2': {
+    modelId: 'moonshotai/kimi-k2:free',
+    provider: 'openrouter',
+    headerKey: 'X-OpenRouter-API-Key',
+  },
   'Gemini 2.5 Pro': {
     modelId: 'gemini-2.5-pro-preview-05-06',
     provider: 'google',
@@ -35,6 +42,11 @@ export const MODEL_CONFIGS = {
   },
   'Gemini 2.5 Flash': {
     modelId: 'gemini-2.5-flash-preview-04-17',
+    provider: 'google',
+    headerKey: 'X-Google-API-Key',
+  },
+  'Gemini 2.5 Flash lite': {
+    modelId: 'gemini-2.5-flash-lite-preview-06-17',
     provider: 'google',
     headerKey: 'X-Google-API-Key',
   },
