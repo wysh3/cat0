@@ -2,81 +2,50 @@
 
 > **AI Assistant Instructions**: When working on this project, always update this file to reflect current progress. Mark completed items with [x], add new discoveries or requirements as they arise, and update phase priorities based on user feedback and technical findings.
 
-## Phase 1: Foundation & Stability
-- [x] Dexie - Add Error Handling (Critical - prevents crashes)
+## Phase 1: Desktop Foundation & Core UX
 - [ ] Add proper loading states across the app
-- [ ] Fix any mobile responsiveness issues
-
-## Phase 2: Core UX Improvements  
+  - [ ] Sidebar thread loading states (highest priority) - Skeleton component available
+  - [ ] Settings page loading states
+  - [ ] Initial app loading state
 - [ ] Chat - Add Scroll to Bottom Button
-- [ ] Dexie - Add Sync across multiple tabs
 - [ ] Add keyboard shortcuts (expand current implementation)
+  - [x] Sidebar toggle (Cmd/Ctrl + B) - implemented
+  - [x] New chat (Cmd/Ctrl + Shift + O) - implemented  
+  - [x] Send message (Enter without Shift) - implemented
+  - [ ] Focus input (Cmd/Ctrl + /)
+- [ ] Dexie - Add Sync across multiple tabs
 
-## Phase 3: Search & Navigation
+## Phase 2: Search & Navigation
 - [ ] Chat - Add Chat History Search
 - [ ] Chat - Add History Card View
 
-## Phase 4: Rich Content & Attachments
-- [ ] Chat - Add Attachments (Image, PDF)
+## Phase 3: Rich Content & Attachments
+- [ ] Chat - Add Attachments (Image, PDF, PDF processing)
 - [ ] Add OCR for image text extraction
 - [ ] Add drag & drop support
 
-## Phase 5: Essential Features
+## Phase 4: Essential Features
 - [ ] Add more AI providers (Anthropic, local models)
+  - [x] Google (Gemini 2.5 Pro, Flash) - implemented
+  - [x] OpenAI (GPT-4o, GPT-4.1-mini) - implemented
+  - [x] OpenRouter (Deepseek R1, V3) - implemented
+  - [ ] Anthropic (Claude) - not implemented
+  - [ ] Local models - not implemented
 - [ ] Export/Import functionality
 - [ ] Offline support & PWA features
 
-## Phase 6: Performance & Polish
+## Phase 5: Performance & Polish
 - [ ] Bundle optimization
 - [ ] Accessibility improvements
+
+## Phase 6: Mobile Responsiveness (Future)
+- [ ] Chat navigator mobile positioning
+- [ ] Theme toggle mobile positioning
+- [ ] Chat input mobile optimization
 
 ---
 
 ## Current Focus
-**Phase**: 1 - Foundation & Stability  
-**Next Task**: Add proper loading states across the app  
+**Phase**: 1 - Desktop Foundation & Core UX  
+**Next Task**: Sidebar thread loading states  
 **Status**: Ready to start
-
-### Recently Completed - Message Summary Model Fix ✅
-**What was implemented:**
-- Updated /api/completion route to dynamically handle all model providers (Google, OpenAI, OpenRouter)
-- Modified useMessageSummary hook to use current selected model instead of hardcoded Google
-- Updated MessageEditor component to use new dynamic summary generation
-- Added filtering for reasoning model <think></think> tokens in summaries
-- Added proper error handling with user-friendly toast notifications and proper TypeScript types
-- Fixed all components to pass current model when generating summaries
-- Improved summary generation prompt with better examples and clearer instructions
-- Reduced title length limit from 80 to 60 characters for better UI fit
-
-**Issues Fixed:**
-- Summary generation now uses the same model as the current chat
-- No longer fails when user doesn't have Google API key
-- Reasoning models (like Deepseek R1) have thinking tokens properly filtered from summaries
-- All model providers now supported for summary generation
-- Fixed TypeScript error with error payload handling
-- Better, more contextual chat titles generated
-
-### Previous Task Completed - Dexie Error Handling ✅
-**What was implemented:**
-- Added comprehensive error handling wrapper functions in queries.ts
-- Added proper error types (storage_quota, database_blocked, database_corrupt, unknown)
-- Updated all components (ChatSidebar, ChatInput, Chat, MessageEditor) with error handling
-- Added user-friendly toast notifications for all database operations
-- Added fallback strategies for read operations (empty arrays)
-- All database operations now handle errors gracefully
-
-**Issues Fixed:**
-- Fixed ChatNavigator component to handle new error response format
-- Fixed Thread.tsx component to handle new error response format
-- Resolved "messageSummaries?.map is not a function" error
-
-## Completed Features
-- [x] Project setup and branding update
-- [x] Clean up original author references
-- [x] Dexie Error Handling - Comprehensive error handling for all database operations
-
-## Notes & Discoveries
-- Modern React/Next.js setup with good architecture
-- Privacy-first approach with local Dexie storage
-- Multi-model AI support already implemented
-- Dexie operations missing error handling in ChatSidebar, ChatInput, MessageEditor components
