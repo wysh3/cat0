@@ -53,7 +53,7 @@ function PureMessage({
           return message.role === 'user' ? (
             <div
               key={key}
-              className="relative group px-4 py-3 rounded-xl bg-secondary border border-secondary-foreground/2 max-w-[80%]"
+              className="relative group max-w-[70%] bg-secondary rounded-3xl px-5 py-2.5"
               ref={(el) => registerRef(message.id, el)}
             >
               {mode === 'edit' && (
@@ -67,7 +67,11 @@ function PureMessage({
                   stop={stop}
                 />
               )}
-              {mode === 'view' && <p>{part.text}</p>}
+              {mode === 'view' && (
+                <div className="whitespace-pre-wrap">
+                  {part.text}
+                </div>
+              )}
 
               {mode === 'view' && (
                 <MessageControls
